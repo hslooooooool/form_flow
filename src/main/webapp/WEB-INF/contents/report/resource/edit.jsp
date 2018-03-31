@@ -1,0 +1,30 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<div class="wrap-content-dialog">
+    <form class="form-horizontal" role="form" id="form-edit" action="report/resource/edit.json">
+		<input type="hidden" name="id" value="${objBean.id}" />
+		<div class="form-group m-b-10">
+			    <label for="form-res-input01" class="col-sm-2 control-label">资源名称</label>
+			    <div class="col-sm-9 p-l-0">
+			      <input type="text" class="form-control require" name="name" data-label-name="资源名称" id="form-res-input01" value="${objBean.name}" />
+			    </div>
+			</div>
+			<div class="form-group m-b-10">
+			    <label for="form-res-input02" class="col-sm-2 control-label">选择报表</label>
+			    <div class="col-sm-9 p-l-0">
+			      <input type="text" class="form-control cnoj-input-select" data-uri="op/query/select_report_list.json" data-is-show-all="no" data-default-value="${fn:replace(objBean.uri,'report/instance/list?reportId=','')}" data-param-name="name" name="uri" id="form-res-input03" />
+			    </div>
+			</div>
+			
+			<div class="form-group m-b-10">
+			    <label for="res-state" class="col-sm-2 control-label">状态</label>
+			    <div class="col-sm-9 p-l-0">
+			    <select class="form-control cnoj-select select-form-control" name="state" id="res-state" data-uri="dict/item/DATA_STATE.json" data-default-value="${objBean.state}">
+				</select>
+			    </div>
+			</div>
+			<div class="text-center">
+			      <button type="button" class="btn btn-primary cnoj-data-submit" data-refresh-uri="report/resource/list" ><i class="glyphicon glyphicon-ok-sign"></i> 确定</button>
+			</div>
+	</form>
+</div>

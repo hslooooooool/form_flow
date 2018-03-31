@@ -1,0 +1,36 @@
+@CHARSET "UTF-8";
+/******消息推送样式******/
+.message-push-wrap {
+	position:absolute;
+	right: 5px;
+	bottom: 5px;
+	width: 250px;
+	height:150px;
+	font-size: 12px;
+	display: none;
+	/*-webkit-background-clip: content;*/
+    box-shadow: 1px 1px 50px rgba(0,0,0,.3);
+    z-index: 1000;
+}
+
+.message-push-wrap .panel-body {
+	height: 120px;
+}
+/*
+.message-push-wrap .panel-heading {
+	padding: 5px 5px 5px 10px;
+}*/
+.message-push-wrap .panel-heading .pop-close {
+	/*color: #efefef;*/
+	color:#666;
+	text-shadow: 0 1px 0 rgba(255,255,255,.25);
+	cursor: pointer;
+}
+.message-push-wrap .panel-heading .pop-close:hover,.message-push-wrap .panel-heading .pop-close:active {
+	color: #888;
+}
+.message-push-wrap .remind-wrap {
+	padding-left: 5px;
+	padding-right: 5px;
+}
+.message-push-wrap .panel-body {margin-top:0;padding-top:2px;}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap SYSTEM "./mapsql.dtd">
+<sqlMap>
+	<!-- 报表用到的sql语句 -->
+
+	<!-- 报表管理列表 -->
+	<sqlUnit name="get_report_mgr_list">
+		<sql>
+			select t.id, t.name, 
+			(select tmp.busi_name from t_n_dict tmp where tmp.busi_value=t.type and tmp.parent_id=(select id from t_n_dict where busi_value='REPORT_TYPE')) as type,
+			(select tmp.busi_name from t_n_dict tmp where tmp.busi_value=rp.is_import and tmp.parent_id=(select id from t_n_dict where busi_value='YES_OR_NO')) as isImport,
+			rsr.name as resName,u.full_name, t.create_time 
+			from t_report t, t_report_properties rp, t_report_sql_resource rsr,t_n_user u 
+			where t.id=rp.report_id and t.id=rsr.report_id and t.user_id = u.id 
+			[ and t.name like '%:name%'] [ and t.type=:type ] 
+			order by t.create_time desc
+		</sql>
+	</sqlUnit>
+	<!-- 删除报表 -->
+	<sqlUnit name="delete_report">
+	   <sql>
+	      delete from t_report where id in(:ids);
+	      delete from t_report_field where report_id in(:ids);
+	      delete from t_report_sql_resource where report_id in(:ids);
+	      delete from t_report_properties where report_id in(:ids)
+	   </sql>
+	</sqlUnit>
+	<!-- 关联查询报表信息 -->
+	<sqlUnit name="query_assoc_report">
+	   <sql>
+	        select t.id,t.name,
+			(select tmp.busi_name from t_n_dict tmp where tmp.busi_value=t.type and tmp.parent_id=(select id from t_n_dict where busi_value='REPORT_TYPE')) as type,
+			t.create_time, t.user_id from t_report t where t.id=:id
+	   </sql>
+	</sqlUnit>
+	
+	<!-- 选择报表列表 -->
+    <sqlUnit name="select_report_list">
+        <sql>
+            select t.id, t.name from t_report t order by t.create_time desc
+        </sql>
+    </sqlUnit>
+    
+    <!-- 表单资源管理 -->
+    <sqlUnit name="report_resource_mgr_list">
+        <sql>
+          select t.id,t.name,t.uri,(select tmp.busi_name from t_n_dict tmp where tmp.busi_value=t.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state,
+          t.create_time 
+           from t_n_resource t where t.type='report_resource' order by t.create_time asc 
+       </sql>
+    </sqlUnit>
+</sqlMap>

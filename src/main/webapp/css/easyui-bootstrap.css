@@ -1,0 +1,15 @@
+@CHARSET "UTF-8";
+.tabs-icon.glyphicon {margin-top: -6px;}
+.tabs-panels .panel.panel-default{
+  margin-bottom: 0px;
+  background-color: #fff;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+  box-shadow: 0 1px 1px rgba(0,0,0,.05);
+}
+
+/******tabs右键菜单样式*******/
+.dropdown-menu.tabs-menu>li>a {padding: 3px 10px;font-size: 12px;}
+.dropdown-menu.tabs-menu {min-width: 140px;}
+.dropdown-menu.tabs-menu .divider { margin: 3px 0;}
+.tabs li.tabs-selected a.tabs-inner {border-bottom-width:2px; }

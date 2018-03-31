@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="smart-web2:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="smart-web2-1.2.3.war">
+      <element id="artifact" artifact-name="smart-web2:war exploded" />
+    </root>
+  </artifact>
+</component>

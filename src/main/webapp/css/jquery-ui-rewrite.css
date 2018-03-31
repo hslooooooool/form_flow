@@ -1,0 +1,8 @@
+@CHARSET "UTF-8";
+/**
+ * 重写jquery-ui样式
+ *
+ */
+.ui-spinner-input {margin-top: 0;margin-bottom: 0;margin-left: 0;}
+.ui-front {z-index: 10000;}
+/*****与bootstrap的分页超链接标签样式冲突*****/

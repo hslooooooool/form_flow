@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>表单帮助</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    <!--[if lte IE 6]>
+       <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-ie6.css">
+    <![endif]-->
+    <!--[if lte IE 7]>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/ie.css">
+    <![endif]-->
+    <link rel="stylesheet" href="leipi.style.css">
+    <link rel="stylesheet" href="css/form.design.css">
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <script type="text/javascript" src="../dialogs/internal.js"></script>
+    <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="../../../js/utils.js"></script>
+    <script type="text/javascript" src="../../../js/input-select.js"></script>
+    <script type="text/javascript">
+/* Thank you by  
+http://www.alt-tag.com/blog/2006/02/ie-dom-bugs/ */
+var formType = $("#form_type",parent.document).val();
+var rootPath = $("#root-path",parent.document).val();
+
+function createElement(type, name) {     
+    var element = null;     
+    try {        
+        element = document.createElement('<'+type+' name="'+name+'">');     
+    } catch (e) {}   
+    if(element==null) {     
+        element = document.createElement(type);     
+        element.name = name;     
+    } 
+    return element;     
+}
+    </script>
+</head>
+<body>
+<div class="content">
+    <table class="table table-bordered">
+     <tr>
+        <th><span>名称</span></th>
+        <td><input type="text" id="orgname" /></td>
+        <th>来源内容</th>
+        <td>
+        	<select id="orgsource">
+        		<option value="helper_library">帮助库</option>
+        		<option value="custom_addr">自定义地址</option>
+        		<option value="custom_content">自定义内容</option>
+        	</select>
+        </td>
+      </tr>
+      <tr>
+      	<th>展现方式</th>
+      	<td colspan="3">
+      		<select id="display_model">
+      			<option value="dis_dialog">弹出窗口方式</option>
+      			<option value="dis_popover">弹出提示方式</option>
+      			<option value="dis_blank">新窗口方式</option>
+      		</select>
+      	</td>
+      </tr>
+      <tr>
+      	<th><span id="orgurl_label">提醒内容</span></th>
+      	<td colspan="3">
+      		<input type="text" id="orgurl" style="width: 90%;" />
+      		<p id="cust_prompt_label" class="hide">如果是网址，请以http或https开头：如：https://www.baidu.com</p>
+      		<textarea id="orgcontent" class="hide" rows="10" cols="50" style="width: 98%"></textarea>
+      	</td>
+      </tr>
+   </table>
+</div>
+<script type="text/javascript">
+var oNode = null,thePlugins = 'helpers';
+window.onload = function() {
+    if( UE.plugins[thePlugins].editdom ){
+        oNode = UE.plugins[thePlugins].editdom;
+        oNode.setAttribute('name','leipiNewField');
+		var gName = oNode.getAttribute('orgname').replace(/&quot;/g,"\"");
+		var gSource = oNode.getAttribute('orgsource');
+		var gUrl = oNode.getAttribute('orgurl');
+		var disModel = oNode.getAttribute('display_model');
+		var orgContent = oNode.getAttribute('orgcontent');
+        $G('orgname').value = gName;
+        $G('orgsource').value = gSource;
+        $G('orgurl').value = gUrl;
+        $G('display_model').value = disModel;
+        if(utils.isNotEmpty(orgContent)) {
+    		orgContent = orgContent.replace("<br/>", "\n");
+   		}
+        $G('orgcontent').value = utils.handleNull(orgContent);
+        
+    }
+    var gSource=$G('orgsource').value;
+    if(gSource == 'helper_library') {
+        loadHelpers();
+    } else if(gSource == 'custom_content') {
+    	$("#orgurl_label").html("提醒内容");
+		$("#cust_prompt_label").addClass("hide");
+		$("#orgurl").hide();
+		$("#orgcontent").show();
+		$("#display_model").prop('readonly',true);
+    }
+	$("#orgsource").change(function(){
+		var value = $(this).val();
+		switch(value) {
+			case 'helper_library':
+				$("#orgurl_label").html("提醒内容");
+				$("#orgurl").show();
+				$("#orgurl").val("");
+				$("#cust_prompt_label").addClass("hide");
+				$("#orgcontent").hide();
+				$("#display_model").prop('readonly',false);
+				loadHelpers();
+				break;
+			case 'custom_addr':
+				$("#orgurl_label").html("自定义地址");
+				$("#orgurl").show();
+				$("#cust_prompt_label").removeClass("hide");
+				$("#orgurl").unbind("click");
+				$("#orgurl").val("");
+				$("#display_model").prop('readonly',false);
+				$("#orgcontent").hide();
+				break;
+			case 'custom_content':
+				$("#orgurl_label").html("提醒内容");
+				$("#cust_prompt_label").addClass("hide");
+			    $("#orgurl").hide();
+			    $("#orgcontent").show();
+			    $("#display_model").val('dis_popover');
+			    $("#display_model").prop('readonly',true);
+				$("#orgurl").val("");
+				break;
+			default:
+			break;
+		}
+	});
+}
+
+dialog.oncancel = function () {
+    if( UE.plugins[thePlugins].editdom ) {
+        delete UE.plugins[thePlugins].editdom;
+    }
+};
+dialog.onok = function (){
+	var isCheck = true;
+	var msg = null;
+	$(".require").each(function(){
+		if(utils.isEmpty($(this).val())) {
+			var title = $(this).parent().prev().find("span:first").text();
+			msg = title+"不能为空！";
+			isCheck = false;
+			$(this).focus();
+			return false;
+		}
+	});
+	if(!isCheck) {
+		alert(msg);
+		return false;
+	}
+    if( !oNode ) {
+       // try {
+            //oNode = createElement('span','leipiNewField');
+            var gName=$G('orgname').value.replace(/\"/g,"&quot;");
+		    var gSource=$G('orgsource').value;
+		    var gUrl=$G('orgurl').value;
+		    var disModel = $G('display_model').value;
+		    var orgContent = $G('orgcontent').value;
+		    if(utils.isNotEmpty(orgContent)) {
+		    	orgContent = orgContent.replace(/\r\n|\n|\r/g, "<br/>");
+		    }
+			var contents = "【?】";
+			if(utils.isNotEmpty(gName)) {
+			    contents = gName;
+			}
+            var html = '{|-<span leipiplugins="'+thePlugins+'" name="leipiNewField" orgcontent="'+orgContent+'" orgname="'+gName+'" orgsource="'+gSource+'" orgurl="'+gUrl+'" display_model="'+disModel+'"';
+            if(gSource == 'helper_library') {
+            	var orgUrlVal = $("#orgurl-value0");
+				if(utils.isNotEmpty(orgUrlVal.attr("id"))) {
+					html = html+" helper_id=\""+orgUrlVal.val()+"\"";
+				}
+            }
+            html += '>';
+            html +=contents;
+            html +='</span>-|}';
+            editor.execCommand('insertHtml',html);
+            return true;
+        /*} catch (e) {
+            try {
+                editor.execCommand('error');
+            } catch ( e ) {
+                alert('控件异常，请联系技术支持');
+            }
+            return false;
+        }*/
+    } else {
+    	oNode.setAttribute('name','leipiNewField');
+    	setAttr(oNode);
+        delete UE.plugins[thePlugins].editdom;
+    }
+};
+
+/**
+ * 
+ */
+function setAttr(oNode) {
+	
+	var gName=$G('orgname').value.replace(/\"/g,"&quot;");
+    var gSource=$G('orgsource').value;
+    var gUrl=$G('orgurl').value;
+    var disModel = $G('display_model').value;
+    var orgContent = $G('orgcontent').value;
+    if(gSource == 'helper_library') {
+		var orgUrlVal = $("#orgurl-value0");
+		if(utils.isNotEmpty(orgUrlVal.attr("id"))) {
+			oNode.setAttribute("helper_id",orgUrlVal.val());
+		}
+	} else {
+		oNode.removeAttribute("helper_id");
+	}
+	if(utils.isNotEmpty(orgContent)) {
+		orgContent = orgContent.replace(/\r\n|\n|\r/g, "<br/>");
+	}
+    oNode.setAttribute('orgname',gName);
+	oNode.setAttribute('orgsource',gSource);
+    oNode.setAttribute('orgurl',gUrl);
+    oNode.setAttribute('display_model', disModel);
+    oNode.setAttribute('orgcontent',orgContent);
+    var contents = "【?】";
+    if(utils.isNotEmpty(gName)) {
+    	contents = gName;
+    }
+    oNode.innerHTML = contents;
+}
+
+/**
+ * 加载帮助信息
+ */
+function loadHelpers() {
+	$("#orgurl").unbind("click");
+	$("#orgurl").click(function(){
+		$(this).inputSelect({
+			uri: rootPath+'/op/queryReqPage/get_form_helper_items.json',
+			isShow: true,
+			isShowAll: false,
+			panelHeight: 150
+		});
+	});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap SYSTEM "./mapsql.dtd">
+<sqlMap>
+
+    <!-- 这里面只支持SQL语句，不支持HQL语句的执行-->
+    
+    <!-- SQL语句-->
+    <!-- 菜单列表树 -->
+    <sqlUnit name="select_menu_tree">
+        <sql>
+           select t.id,t.parent_id,t.sort_order,t.id as menuId,t.parent_id as parentId,t.name from t_n_menu t order by t.sort_order asc 
+        </sql>
+    </sqlUnit>
+   <!-- 数据字典列表树 -->
+    <sqlUnit name="select_dict_tree">
+        <sql>
+           select t.id,t.parent_id,t.sort_order,t.id as dictId,t.parent_id as parentId,t.busi_name from t_n_dict t order by t.sort_order asc 
+        </sql>
+    </sqlUnit>
+    
+    <!-- 组织机构树（未过滤） -->
+    <sqlUnit name="select_org_tree">
+        <sql>
+           select t.id,t.parent_id,t.sort_order,t.id as orgId,t.parent_id as parentId,t.name from t_n_org t order by t.sort_order asc 
+        </sql>
+    </sqlUnit>
+    
+    <!-- 角色管理列表 -->
+    <sqlUnit name="role_mgr_list">
+        <sql>select t.id,t.name,
+        (select tmp.busi_name from t_n_dict tmp where tmp.busi_value=t.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state
+        ,t.descr,u.full_name,t.create_time from t_n_role t,t_n_user u 
+        where t.user_id = u.id [ and t.id in (:roleIds)] order by t.create_time asc </sql>
+    </sqlUnit>
+    <!-- 角色权限列表 -->
+    <sqlUnit name="role_simp_list">
+        <sql>select t.id,t.name,t.descr from t_n_role t where t.state = '1' [ and t.id in (:roleIds)] [and t.name like '%:name%'] order by t.create_time asc </sql>
+    </sqlUnit>
+    <!-- 拥有该角色的用户列表 -->
+    <sqlUnit name="role_user_list">
+        <sql>select t.id,t.username,t.full_name,t.mobile_no,o.seq_names 
+        from t_n_user t,t_n_org o,t_n_role_user ru where t.state = '1' and t.org_id=o.id and ru.role_id=:id and ru.user_id=t.id 
+        [and (t.full_name like '%:name%' or t.username like '%:name%' or t.mobile_no='%:name%')] order by t.create_time asc </sql>
+    </sqlUnit>
+    <sqlUnit name="role_adduser_list">
+        <sql>select t.id,t.username,t.full_name,t.mobile_no,o.seq_names 
+        from t_n_user t,t_n_org o where t.state = '1' and t.org_id=o.id  
+        and t.id not in (select ru.user_id from t_n_role_user ru where ru.role_id=:id) 
+        [and (t.full_name like '%:name%' or t.username like '%:name%' or t.mobile_no='%:name%')] order by t.create_time asc </sql>
+    </sqlUnit>
+
+    <!-- 拥有该角色的组织机构列表 -->
+    <sqlUnit name="role_org_list">
+        <sql>select t.id,t.seq_names,(select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=t.type and tmp.parent_id=(select id from t_n_dict where busi_value='ORG_TYPE')) as type,t.code  
+        from t_n_org t,t_n_role_org ro where t.id=ro.org_id and ro.role_id=:id and ro.flag='role' 
+        [and (t.name like '%:name%' or t.code like '%:name%')] order by t.sort_order asc </sql>
+    </sqlUnit>
+    <sqlUnit name="role_addorg_list">
+        <sql>select t.id,t.seq_names,(select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=t.type and tmp.parent_id=(select id from t_n_dict where busi_value='ORG_TYPE')) as type,t.code 
+        from t_n_org t where t.id not in (select ro.org_id from t_n_role_org ro where ro.role_id=:id and ro.flag='role') 
+        [and (t.name like '%:name%' or t.code like '%:name%')] order by t.seq_names asc </sql>
+    </sqlUnit>
+    
+    <!-- 拥有该角色的岗位列表 -->
+    <sqlUnit name="role_position_list">
+        <sql>select t.id,t.name,t.seq_name   
+        from t_n_position t,t_n_role_position rp where t.id=rp.position_id and rp.role_id=:id 
+        [and t.name like '%:name%'] order by t.seq_name asc </sql>
+    </sqlUnit>
+    <sqlUnit name="role_addposition_list">
+        <sql>select t.id,t.name,t.seq_name 
+        from t_n_position t where t.id not in (select rp.position_id from t_n_role_position rp where rp.role_id=:id) 
+        [and t.name like '%:name%'] order by t.seq_name asc </sql>
+    </sqlUnit>
+    
+     <!-- 组织机构管理列表 -->
+    <sqlUnit name="org_mgr_tree_list">
+        <sql>
+           select t.id,t.parent_id,t.sort_order,t.id as orgId,t.name,t.code,
+           (select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=t.type and tmp.parent_id=(select id from t_n_dict where busi_value='ORG_TYPE')) as type,
+            t.sort_order as sortOrder,t.contacts,t.contact_number from t_n_org t order by t.sort_order asc 
+        </sql>
+    </sqlUnit>
+    <!-- 岗位管理列表 -->
+    <sqlUnit name="position_mgr_list">
+        <sql>select t.id,t.name,o.name as orgName,t.create_time from t_n_position t,t_n_org o where t.org_id = o.id [and t.org_id=:orgId] [and t.org_id in(:orgIds)] order by t.create_time asc </sql>
+    </sqlUnit>
+    
+    <!-- 选择岗位列表-->
+    <sqlUnit name="select_position">
+        <sql>select t.id,t.name from t_n_position t [where t.org_id=:orgId] order by t.create_time asc </sql>
+    </sqlUnit>
+    
+    <!-- 用户权限列表 -->
+    <sqlUnit name="user_simp_list">
+        <sql>select t.id,t.username,t.full_name,o.seq_names from t_n_user t,t_n_org o 
+        where t.state = '1' and t.org_id=o.id [and t.org_id in(:orgIds)] [and (t.full_name like '%:name%' or t.username like '%:name%')] order by t.create_time asc </sql>
+    </sqlUnit>
+    <!-- 该用户拥有的角色列表 -->
+    <sqlUnit name="user_role_list">
+        <sql>select t.id,t.name,t.descr  
+        from t_n_role t,t_n_role_user ru where t.state = '1' and ru.user_id=:id and ru.role_id=t.id 
+        [and t.name like '%:name%'] order by t.create_time asc </sql>
+    </sqlUnit>
+    <sqlUnit name="user_addrole_list">
+        <sql>select t.id,t.name,t.descr  
+        from t_n_role t where t.state = '1'   
+        and t.id not in (select ru.role_id from t_n_role_user ru where ru.user_id=:id) 
+        [and t.name like '%:name%'] order by t.create_time asc </sql>
+    </sqlUnit>
+    
+    <!-- 该组织机构拥有的角色列表 -->
+    <sqlUnit name="org_role_list">
+        <sql>select t.id,t.name,t.descr   
+        from t_n_role t,t_n_role_org ro where t.state = '1' and t.id=ro.role_id and ro.org_id=:id and ro.flag='org' 
+        [and t.name like '%:name%'] order by t.create_time asc </sql>
+    </sqlUnit>
+    <sqlUnit name="org_addrole_list">
+        <sql>select t.id,t.name,t.descr  
+        from t_n_role t where t.state = '1'   
+        and t.id not in (select ro.role_id from t_n_role_org ro where ro.org_id=:id and ro.flag='org') 
+        [and t.name like '%:name%'] order by t.create_time asc </sql>
+    </sqlUnit>
+    <!-- 岗位权限SQL -->
+    <!-- 该组织机构拥有的角色列表 -->
+    <sqlUnit name="position_role_list">
+        <sql>select t.id,t.name,t.descr   
+        from t_n_role t,t_n_role_position rp where t.state = '1' and t.id=rp.role_id and rp.position_id=:id 
+        [and t.name like '%:name%'] order by t.create_time asc </sql>
+    </sqlUnit>
+    <sqlUnit name="position_simp_list">
+       <sql>
+          select t.id,t.name,o.seq_names from t_n_position t,t_n_org o 
+          where t.org_id=o.id [and t.name like '%:name%'] [ and t.org_id in(:orgIds)] order by t.create_time asc
+       </sql>
+    </sqlUnit>
+    <sqlUnit name="position_addrole_list">
+        <sql>select t.id,t.name,t.descr  
+        from t_n_role t where t.state = '1'   
+        and t.id not in (select rp.role_id from t_n_role_position rp where rp.position_id=:id) 
+        [and t.name like '%:name%'] order by t.create_time asc </sql>
+    </sqlUnit>
+    
+    <!-- 选择角色列表 -->
+    <sqlUnit name="select_role_list">
+       <sql>
+           select t.id,t.name from t_n_role t [ where t.name like '%:name%'] order by t.create_time asc 
+       </sql>
+    </sqlUnit>
+    
+    <!-- 添加/修改菜单时选择资源列表 -->
+    <sqlUnit name="select_res_list_by_menu">
+       <sql>
+           select t.id,t.name from t_n_resource t where t.id not in(select m.resource_id from t_n_menu m where [ m.resource_id &lt;&gt;:id and ] m.resource_id is not null) [ and t.name like '%:name%'] order by t.create_time asc 
+       </sql>
+    </sqlUnit>
+    
+    <!-- 小窗口管理 -->
+    <sqlUnit name="minwin_mgr_list">
+        <sql>select t.id,t.name,t.uri,t.more_uri,t.height,(select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=t.is_show_title and tmp.parent_id=(select id from t_n_dict where busi_value='VISIBLE_STATE')) as isShowTitle,
+        (select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=t.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state
+        ,t.sort_order,t.create_time from t_n_min_window t order by t.sort_order asc</sql>
+    </sqlUnit>
+    
+    <!-- 版本列表 -->
+    <sqlUnit name="version_mgr_list">
+    	<sql>
+    		select v.id,v.version_,v.update_date,v.create_time,v.descr from t_n_version v where v.type_='pc' 
+    		[ and v.version_ like '%:version%'] 
+    		order by v.create_time desc
+    	</sql>
+    </sqlUnit>
+    
+    <include file="/sql/web_sql_res.xml"/>
+    <include file="/sql/smart_sql_res.xml" />
+</sqlMap>

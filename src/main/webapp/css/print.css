@@ -1,0 +1,12 @@
+@CHARSET "UTF-8";
+@media print {
+    th,td {
+        font-size: 16px !important;
+    }
+  .table-bordered th,
+  .table-bordered td {
+    border: 1px solid #000 !important;
+  }
+}
+
+  

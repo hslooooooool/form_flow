@@ -1,0 +1,327 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>上传文件插件</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    <!--[if lte IE 6]>
+       <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-ie6.css">
+    <![endif]-->
+    <!--[if lte IE 7]>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/ie.css">
+    <![endif]-->
+    <link rel="stylesheet" href="leipi.style.css">
+    <link rel="stylesheet" href="css/form.design.css">
+    <script type="text/javascript" src="../dialogs/internal.js"></script>
+    <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="../../../js/utils.js"></script>
+    <script type="text/javascript">
+/* Thank you by  
+http://www.alt-tag.com/blog/2006/02/ie-dom-bugs/ */
+
+var rootPath = $("#root-path",parent.document).val();
+var formType = $("#form_type",parent.document).val();
+function createElement(type, name) {     
+    var element = null;     
+    try {        
+        element = document.createElement('<'+type+' name="'+name+'">');     
+    } catch (e) {}   
+    if(element==null) {     
+        element = document.createElement(type);     
+        element.name = name;     
+    } 
+    return element;     
+}
+</script>
+</head>
+<body>
+<div class="content">
+    <table class="table table-bordered">
+     <tr>
+        <th><span>标题</span><span class="label label-important">*</span></th>
+        <td><input type="text" class="require" id="orgtitle" /></td>
+        <th><span>必填字段</span></th>
+        <td><label class="checkbox inline"><input id="fieldrequire" type="checkbox"/>是</label></td>
+    </tr>
+    <tr>
+        <th><span>绑定表</span><span class="label label-important">*</span></th>
+        <td>
+           <select id="bind_table" class="require">
+              <option class="" value="">无</option>
+              <option class="cnoj-dyn-opt" value="">正在加载数据</option>
+           </select>
+        </td>
+        <th><span>绑定字段</span><span class="label label-important">*</span></th>
+        <td>
+           <select id="bind_table_field" class="require">
+           	   <option class="" value="">无</option>
+               <option class="cnoj-dyn-opt" value="">正在加载数据</option>
+           </select>
+        </td>
+    </tr>
+    
+    <tr>
+       <th><span>最大上传文件数</span></th>
+       <td><input type="text" id="maxfiles" value="5" /></td>
+       <th><span>可见性</span></th>
+       <td>
+         <label class="checkbox inline"><input id="orghide" type="checkbox"/> 隐藏 </label>
+       </td>
+    </tr>
+    <tr>
+      <th>关联字段</th>
+      <td>
+      	<select id="relate_field">
+      		<option value="">请选择</option>
+      	</select>
+      </td>
+      <th>关联值</th>
+      <td><input id="relate_field_value" type="text"/></td>
+    </tr>
+    <tr>
+        <th>样式类型</th>
+        <td>
+            <select id="org_btn_style">
+                <option value="btn-default">默认</option>
+                <option value="btn-primary" style="background-color: #428bca;">主要</option>
+                <option value="btn-success" style="background-color: #449d44;">成功</option>
+                <option value="btn-info" style="background-color: #5bc0de;">信息</option>
+                <option value="btn-warning" style="background-color: #f0ad4e;">警告</option>
+                <option value="btn-danger" style="background-color: #d9534f;">危险</option>
+            </select>
+        </td>
+        <th>JS回调方法</th>
+        <td>
+            <input type="text" id="jscallback" value="showFormAttList" />
+        </td>
+    </tr>
+    <tr>
+        <th>单个文件大小</th>
+        <td>
+            <input type="text" id="filesize" value="10" /> MB
+            <p class="help-block" style="color: #737373;margin-bottom: 0;">为空表示不限制上传文件大小.</p>
+        </td>
+        <th>表单ID</th>
+        <td>
+            <input type="text" id="formid" value="" />
+            <p class="help-block" style="color: #737373;margin-bottom: 0;">上传文件时，需要提交的表单数据.</p>
+        </td>
+    </tr>
+    <tr>
+        <th><span>上传地址</span></th>
+        <td colspan="3"><input type="text" id="orguri" value="process/attachment/upload" /></td>
+    </tr>
+        <tr>
+            <th><span>记录日志</span></th>
+            <td colspan="3">
+                <label class="checkbox inline"><input id="is-log" type="checkbox"/> 是 </label>
+            </td>
+        </tr>
+    <tr>
+        <th>上传文件类型</th>
+        <td colspan="3">
+        <textarea rows="3" style="width: 95%" class="form-control" id="filetype">jpg,png,gif,doc,docx,xls,xlsx,ppt,pptx,pdf,zip,rar,txt</textarea>
+        <p class="help-block" style="color: #737373;margin-bottom: 0;">填写文件后缀，为空表示支持所有文件格式，多个文件类型之间用英文逗号分隔；如: jpg,docx,pdf.</p>
+        </td>
+    </tr>
+    <tr>
+        <th>备注</th>
+        <td colspan="3">
+        <textarea rows="3" style="width: 95%" class="form-control" id="remarks"></textarea>
+        </td>
+    </tr>
+   </table>
+</div>
+<script type="text/javascript">
+var oNode = null,thePlugins = 'files';
+var tableDefValue = null,fieldDefValue = null;
+window.onload = function() {
+	var tableFieldId = null;
+    if( UE.plugins[thePlugins].editdom ){
+        oNode = UE.plugins[thePlugins].editdom;
+        oNode.setAttribute('name','leipiNewField');
+		var gRequrie = oNode.getAttribute('fieldrequire'),
+		gTitle=oNode.getAttribute('title').replace(/&quot;/g,"\""),
+		gHidden=oNode.getAttribute('orghide'),
+		gRelateField = oNode.getAttribute('relate_field'),
+		gRelateFieldValue = oNode.getAttribute('relate_field_value'),
+		gBindTable = oNode.getAttribute('bind_table'),gBindField=oNode.getAttribute('bind_table_field');
+        var gFileType = oNode.getAttribute('filetype');
+        var orgBtnStyle = oNode.getAttribute('org_btn_style');
+        var maxFileNum = oNode.getAttribute('maxfiles');
+        var maxFileSize = oNode.getAttribute('filesize');
+        var remarks = oNode.getAttribute('remarks');
+        var jsCallback = oNode.getAttribute('jscallback');
+        var formId = oNode.getAttribute('formid');
+        var orgUri = oNode.getAttribute('orguri');
+        var gIsLog = oNode.getAttribute('is_log');
+
+        gTitle = gTitle==null ? '' : gTitle;
+        tableDefValue = gBindTable==null?'':gBindTable;
+        fieldDefValue = gBindField==null?'':gBindField;
+        tableFieldId = fieldDefValue;
+        $G('orgtitle').value = gTitle;
+        $G('filetype').value = gFileType;
+        $G('relate_field_value').value = utils.handleNull(gRelateFieldValue);
+        if (gRequrie == '1') {
+            $G('fieldrequire').checked = true;
+        }
+        if (gHidden == '1') {
+            $G('orghide').checked = true;
+        }
+        $G('org_btn_style').value = orgBtnStyle;
+        if(utils.isNotEmpty(maxFileNum)) {
+            $G('maxfiles').value = maxFileNum;
+        }
+        if(utils.isNotEmpty(maxFileSize)) {
+            $G('filesize').value = maxFileSize;
+        }
+        if(utils.isNotEmpty(remarks)) {
+            $G('remarks').value = remarks;
+        }
+        if(utils.isNotEmpty(jsCallback)) {
+            $G('jscallback').value = jsCallback;
+        }
+        if(utils.isNotEmpty(formId)) {
+            $G('formid').value = formId;
+        }
+        if(utils.isNotEmpty(orgUri)) {
+            $G('orguri').value = orgUri;
+        }
+        if(gIsLog == '1') {
+            $G('is-log').checked = true;
+        }
+    } 
+    utils.selectItem("#bind_table",rootPath+'/form/table/item.json',tableDefValue,function(val) {
+    	utils.selectCascadeItem("#bind_table_field", "#bind_table", rootPath+'/form/table/fields.json', "id", fieldDefValue, null);
+	});
+	//获取编辑器中的内容
+	var ueditorContent = parent.getUeditorContents();
+	if(utils.isNotEmpty(ueditorContent)) {
+		var $uc = $(ueditorContent);
+		$("#relate_field .relate_field_option").remove();
+		$uc.find("select[leipiplugins=select]").each(function() {
+			var $this = $(this);
+			var pTableFieldId = $this.attr("bind_table_field");
+			var title = $this.attr("orgtitle");
+			if(utils.isEmpty(tableFieldId) || tableFieldId != pTableFieldId) {
+				$("#relate_field").append("<option class='relate_field_option' value='"+pTableFieldId+"'>"+title+"</option>");
+			}
+		});
+	}
+	$G('relate_field').value = utils.handleNull(gRelateField);
+}
+dialog.oncancel = function () {
+    if( UE.plugins[thePlugins].editdom ) {
+        delete UE.plugins[thePlugins].editdom;
+    }
+};
+dialog.onok = function (){
+	var isCheck = true;
+	var msg = null;
+	$(".require").each(function(){
+		if(utils.isEmpty($(this).val())) {
+			var title = $(this).parent().prev().find("span:first").text();
+			msg = title+"不能为空！";
+			isCheck = false;
+			$(this).focus();
+			return false;
+		}
+	});
+	if(!isCheck) {
+		alert(msg);
+		return false;
+	}
+    if( !oNode ) {
+        try {
+            oNode = createElement('button','leipiNewField');
+            oNode.setAttribute('type','button');
+            oNode.setAttribute('name','leipiNewField');
+            oNode.setAttribute('leipiPlugins',thePlugins);
+            setAttr(oNode);
+            editor.execCommand('insertHtml',oNode.outerHTML);
+        } catch (e) {
+            try {
+                editor.execCommand('error');
+            } catch ( e ) {
+                alert('控件异常，请联系技术支持');
+            }
+            return false;
+        }
+    } else {
+    	oNode.setAttribute('name','leipiNewField');
+    	setAttr(oNode);
+        delete UE.plugins[thePlugins].editdom;
+    }
+};
+
+/**
+ * 
+ */
+function setAttr(oNode) {
+	var gTitle=$G('orgtitle').value.replace(/\"/g,"&quot;");
+    var bindTable = $G('bind_table').value;
+    var bindTableField = $G('bind_table_field').value;
+    var fileType = $G('filetype').value;
+    var relateField = $G('relate_field').value;
+    var gRelateFieldValue = $G('relate_field_value').value;
+    var orgBtnStyle = $G('org_btn_style').value;
+    var maxFileNum = $G('maxfiles').value;
+    var maxFileSize = $G('filesize').value;
+    
+    var remarks = $G('remarks').value;
+    var jsCallback = $G('jscallback').value;
+    var formId = $G('formid').value;
+    var orgUri = $G('orguri').value;
+    
+	oNode.setAttribute('title',gTitle);
+    oNode.setAttribute('bind_table',bindTable);
+    oNode.setAttribute('bind_table_field',bindTableField);
+    oNode.setAttribute('filetype',fileType);
+    oNode.setAttribute('org_btn_style',orgBtnStyle);
+    oNode.setAttribute('maxfiles', maxFileNum);
+    oNode.setAttribute('filesize',maxFileSize);
+    oNode.setAttribute('remarks',remarks);
+    
+    oNode.setAttribute('id',bindTable+"-"+bindTableField);
+    oNode.setAttribute('relate_field',utils.handleNull(relateField));
+    oNode.setAttribute('relate_field_value',utils.handleNull(gRelateFieldValue));
+    oNode.setAttribute('formtype',formType);
+    oNode.setAttribute('jscallback',jsCallback);
+    oNode.setAttribute('formid',formId);
+    oNode.setAttribute('orguri',orgUri);
+    
+    if ($G('orghide').checked ) {
+        oNode.setAttribute('orghide',1);
+    } else {
+        oNode.setAttribute('orghide',0);
+    }
+    oNode.className = "btn btn-sm "+orgBtnStyle;
+    if ($G('fieldrequire').checked ) {
+        oNode.setAttribute('fieldrequire',1);
+        var className = oNode.className;
+        if(typeof(className) === 'undefined' || null == className) {
+        	className = '';
+        }
+        oNode.className=className+" require";
+    } else {
+        oNode.setAttribute('fieldrequire',0);
+        var className = oNode.className;
+        if(typeof(className) === 'undefined' || null == className) {
+        	className = '';
+        } else {
+        	className = className.replace(" require", "");
+        }
+        oNode.className=className;
+    }
+    if($G('is-log').checked) {
+        oNode.setAttribute('is_log',1);
+    } else {
+        oNode.setAttribute('is_log',0);
+    }
+    oNode.innerHTML = "添加附件";
+}
+</script>
+</body>
+</html>

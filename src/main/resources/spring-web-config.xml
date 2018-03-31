@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans.xsd 
+    http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context.xsd  
+    http://www.springframework.org/schema/mvc 
+    http://www.springframework.org/schema/mvc/spring-mvc.xsd ">
+
+	<!-- 自动扫描的包名 -->
+    <context:component-scan base-package="cn.com.smart" use-default-filters="false">
+	  <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+
+	<!-- 默认的注解映射的支持 -->
+	<mvc:annotation-driven />
+
+	<!-- ViewResolver -->
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="viewResolvers">
+			<list>
+				<bean class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+				<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+					<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+					<property name="prefix" value="/WEB-INF/contents/" />
+					<property name="suffix" value=".jsp" />
+				</bean>
+			</list>
+		</property>
+		<property name="defaultViews">
+			<list>
+				<!-- for application/json -->
+				<bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+				<!-- for application/xml -->
+				<bean class="org.springframework.web.servlet.view.xml.MarshallingView">
+					<property name="marshaller">
+						<!-- xstream.XStreamMarshaller -->
+						<bean class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+							<property name="classesToBeBound">
+								<list>
+									<value>cn.com.smart.bean.SmartResponse</value>
+								</list>
+							</property>
+						</bean>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 拦截器 -->
+	<mvc:interceptors>
+	   <mvc:interceptor>
+	        <mvc:mapping path="/**"/>
+		    <mvc:exclude-mapping path="/images/**"/>
+			<mvc:exclude-mapping path="/css/**"/>
+			<mvc:exclude-mapping path="/js/**"/>
+			<mvc:exclude-mapping path="/plugins/**"/>
+			<!-- 登录拦截(判断是否登录) -->
+			<bean class="cn.com.smart.web.interceptor.ACLInterceptor">
+				<property name="excludeMaps">
+					<list>
+					    <value>test/*</value>
+					    <value>sso/*</value>
+						<value>login</value>
+						<value>user/logout</value>
+						<value>captcha</value>
+						<value>user/islogin.json</value>
+					</list>
+				</property>
+				<property name="resSuffix">
+					<value>jpg,png,gif,js,css,eot,svg,ttf,woff,jsp</value>
+				</property>
+				<property name="authUriList">
+				    <list>
+				        <value>*/delete</value>
+				        <value>*/delete/*</value>
+				        <value>*/delete.json</value>
+				    </list>
+				</property>
+			</bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+	
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="UTF-8" />
+		<!-- 设置上传文件的最大尺寸 -->
+		<property name="maxUploadSize" value="1048576000" />
+	</bean>
+	
+	<!-- 异常处理 -->
+	<bean id="exceptionResolver" class="cn.com.smart.web.interceptor.SmartExceptionResolver">
+		<!-- 设置日志输出级别，不定义则默认不输出警告等错误日志信息 -->     
+        <property name="warnLogCategory" value="ERROR"></property>
+	</bean>
+	
+	<!-- 
+	<bean id="exceptionResolver"
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">error_fileupload</prop>
+			</props>
+		</property>
+	</bean> -->
+	
+	<mvc:default-servlet-handler />
+	<mvc:view-controller path="/" view-name="redirect:/index" />
+</beans>

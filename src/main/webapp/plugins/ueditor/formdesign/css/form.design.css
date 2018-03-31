@@ -1,0 +1,47 @@
+@CHARSET "UTF-8";
+input, textarea, .uneditable-input {
+  width: 170px;
+}
+table span{font-size: 12px;}
+.table th, .table td {padding: 4px 6px;line-height: 28px;}
+.table th {text-align: right;background-color: #f9f9f9;}
+#tbl th {text-align: left;}
+#tbl.table th, #tbl.table td {line-height: 20px;}
+select,textarea, input[type="text"], input[type="password"], 
+input[type="datetime"], input[type="datetime-local"], 
+input[type="date"], input[type="month"], input[type="time"], 
+input[type="week"], input[type="number"], input[type="email"], 
+input[type="url"], input[type="search"], input[type="tel"], input[type="color"], 
+.uneditable-input {
+	 /* height: 20px;
+	  padding: 3px 4px;
+	   font-size: 12px;
+	  line-height: 20px;*/
+	  margin-bottom: 0; 
+	 
+}
+select {width: 180px;/*height:28px; line-height: 28px;*/padding-left: 3px;}
+.radio input[type="radio"], .checkbox input[type="checkbox"] {
+  float: left;
+  margin-left: -15px;
+}
+input.span1 {width: 70px;}
+.span14 {
+	width:500px;
+}
+select[multiple] {height: 110px;}
+.input-medium {
+  width: 120px;
+}
+.input-small {
+    width: 100px;
+}
+.input-m-small {
+	width: 80px;
+}
+.input-default-value label{display: inline-block;margin:0 2px;}
+.input-default-value label input {margin:0;}
+
+.input-m-mini {
+	width: 40px;
+}

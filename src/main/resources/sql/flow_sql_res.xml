@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap SYSTEM "mapsql.dtd">
+<sqlMap>
+	<!-- 流程用到的sql语句 -->
+	
+	<!-- 页面模版 -->
+	<sqlUnit name="page_model_mgr_list">
+		<sql>select t.id,t.name,t.uri,t.view_uri,(select tmp.busi_name from t_n_dict tmp where tmp.busi_value=t.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state,u.full_name,t.create_time from t_flow_page_model t,t_n_user u where u.id=t.user_id order by t.create_time asc</sql>
+	</sqlUnit>
+	<!-- 选择流程页面模版 -->
+	<sqlUnit name="select_page_model_item">
+	   <sql>select t.uri,t.name from t_flow_page_model t where t.state = '1'</sql>
+	</sqlUnit>
+	<!-- 流程信息管理 -->
+	<sqlUnit name="flow_process_list">
+	     <sql>
+	        select p.id,p.name,p.display_name,
+	         (select tmp.busi_name from t_n_dict tmp where tmp.busi_value=org_pro.flow_type and tmp.parent_id=(select id from t_n_dict where busi_value='FLOW_TYPE')) as type
+	        ,o.seq_names as orgName,
+	        (select tmp.busi_name from t_n_dict tmp where tmp.busi_value=p.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state,
+	         p.version,u.full_name,p.create_Time 
+	        from t_wf_process p,t_n_org o,t_n_user u,t_flow_process org_pro  
+	        where p.creator=u.id and org_pro.process_id=p.id and org_pro.org_id=o.id [ and org_pro.org_id in (:orgIds)] 
+	        [ and (p.name like '%:name%' or p.display_name like '%:name%')] [ and p.state=:state] [ and org_pro.flow_type=:type ] [ and org_pro.org_id=:orgId ]
+	        order by p.create_time 
+	     </sql>
+	</sqlUnit>
+	<!-- 流程资源管理 -->
+	<sqlUnit name="flow_resource_mgr_list">
+	    <sql>
+          select t.id,t.name,t.uri,(select tmp.busi_name from t_n_dict tmp where tmp.busi_value=t.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state,
+          t.create_time 
+           from t_n_resource t where t.type='flow_resource' order by t.create_time asc 
+       </sql>
+	</sqlUnit>
+	<!-- 选择流程资源 -->
+	<sqlUnit name="select_flow_res">
+	   <sql> select distinct p.name,p.display_name from t_wf_process p </sql>
+	</sqlUnit>
+	<!-- 流程表单 -->
+	<sqlUnit name="select_flow_form">
+	   <sql>select t.id,t.name from t_form t where t.type='flow_form' [ and t.name like '%:name%'] order by t.create_time asc</sql>
+	</sqlUnit>
+	
+	<!-- 流程表单属性 -->
+	<sqlUnit name="flow_form_prop">
+	   <sql>select t.table_field_id,t.title from t_form_field t where t.form_id=:id</sql>
+	</sqlUnit>
+	
+	<!-- 获取用户姓名和流程名称（用于生成流程实例标题） -->
+	<sqlUnit name="get_userfull_flowname">
+	   <sql>select t.display_name from t_wf_process t where t.id=:processId union select u.full_name  from t_n_user u where u.id=:userId</sql>
+	</sqlUnit>
+	
+	<!-- 流程实例管理 -->
+	   <!-- 正在处理的实例 -->
+        <sqlUnit name="process_order_mgr_list">
+           <sql>select o.process_Id,o.id, p.display_name,ffl.title,u.full_name,o.version,o.create_time,
+             (select count(*) from t_flow_attachment fa where fa.order_id=o.id) as attcount 
+              from t_wf_order o,t_wf_process p,t_flow_form ffl,t_n_user u 
+                where o.process_Id = p.id and o.id=ffl.order_id and o.creator=u.id [ and (p.display_name like '%:name%' or ffl.title like '%:name%')] 
+                [ and o.create_time >= :startDate ][ and o.create_time &lt;= :endDate] order by o.create_time desc
+            </sql>
+        </sqlUnit>
+        <!-- 历史实例 -->
+        <sqlUnit name="process_hist_order_mgr_list">
+           <sql>select o.process_Id,o.id, p.display_name,ffl.title,u.full_name,o.create_time,o.end_Time,
+           (select count(*) from t_flow_attachment fa where fa.order_id=o.id) as attcount 
+            from t_wf_hist_order o,t_wf_process p,t_flow_form ffl,t_n_user u 
+                where o.process_Id = p.id and o.id=ffl.order_id and o.creator=u.id and o.id not in 
+                (select t.id from t_wf_order t) [ and (p.display_name like '%:name%' or ffl.title like '%:name%')] 
+                [ and o.create_time >= :startDate ][ and o.create_time &lt;= :endDate] 
+                order by end_time desc 
+           </sql>
+        </sqlUnit>
+		<!-- 获取流程表单信息 -->
+		<sqlUnit name="query_flow_form_info">
+		   <sql>select ff.title,u.full_name from t_flow_form ff,t_n_user u where ff.user_id=u.id and ff.order_id=:orderId</sql>
+		</sqlUnit>
+		
+	 <!-- 流程附件列表 -->
+	 <sqlUnit name="process_attachment_list">
+	     <sql>
+	         select pa.id,pa.attachment_id,a.file_name,a.file_size,a.file_suffix,a.create_time,u.full_name,a.user_id,pa.task_id  
+	         from t_flow_attachment pa,t_n_attachment a,t_n_user u where pa.attachment_id=a.id and a.user_id = u.id 
+	         [ and pa.form_id=:formId] [ and a.user_id=:userId] [ and pa.order_id=:orderId] 
+	     </sql>
+	 </sqlUnit>
+	
+	<!-- 获取下一节点及参与者(多个参与者直接用英文“;”分隔) -->
+	<sqlUnit name="get_task_actors">
+	   <sql> 
+	     select a.display_name, group_concat(a.name separator ';') as name from (
+			select task.display_name, group_concat(u.full_name separator ';') as name from t_wf_task task,t_wf_task_actor actor, t_n_user u  
+			where task.order_id=:orderId and task.id = actor.task_id and u.id=actor.actor_id [ and u.org_id=:orgId ] [ and task.task_name=:taskKey ] group by task.display_name
+			union 
+			select task.display_name, group_concat(org.name separator ';') as name from t_wf_task task,t_wf_task_actor actor, t_n_org org   
+			where task.order_id=:orderId and task.id = actor.task_id and org.id=actor.actor_id [ and org.id=:orgId] [ and task.task_name=:taskKey ] group by task.display_name
+			union 
+			select task.display_name, group_concat(p.name separator ';') as name from t_wf_task task,t_wf_task_actor actor, t_n_position p   
+			where task.order_id=:orderId and task.id = actor.task_id and p.id=actor.actor_id [ and p.org_id=:orgId] [ and task.task_name=:taskKey ] group by task.display_name) a 
+			group by a.display_name
+	   </sql>
+	</sqlUnit>
+	
+	<!-- 获取任务模型 -->
+	<sqlUnit name="get_taskmodel_order">
+	    <sql>
+	      select task.id,task.task_name,task.display_name from t_wf_task task where task.order_id=:orderId
+	    </sql>
+	</sqlUnit>
+	<!-- 获取驳回参与者 -->
+	<sqlUnit name="back_assigner">
+	    <sql>
+	       select hta.actor_id from t_wf_hist_task_actor hta where hta.task_id = (
+	       select ht.id from t_wf_hist_task ht where ht.order_id=:orderId 
+	       and ht.task_name=:taskKey order by ht.finish_time desc limit 1)
+	    </sql>
+	</sqlUnit>
+	<!-- 判断任务是否领取了，如果统计出来大于0表示已经被领取，否则表示未领取 -->
+	<sqlUnit name="is_take_task">
+	    <sql>
+	      select count(task.id) from t_wf_task task where task.id=:taskId and task.take_time is not null
+	    </sql>
+	</sqlUnit>
+	
+	<!-- 检测流程实例名称是否已经存在 -->
+	<sqlUnit name="check_instance_title">
+	   <sql>
+	      select count(t.id) from t_flow_form t where t.form_id=:formId and t.title=:title
+	   </sql>
+	</sqlUnit>
+	
+	<!-- 选择流程列表 -->
+	<sqlUnit name="select_flow_list">
+		<sql>
+			select t.id,t.display_name from t_wf_process t where t.state=1
+		</sql>
+	</sqlUnit>
+	
+	<!-- 获取未能正常流程的流程实例ID -->
+	<sqlUnit name="get_abnormal_order_ids">
+		<sql>
+			select distinct t.order_id from t_wf_task t where t.order_id in(select id from t_wf_order o where o.process_id=:processId) and t.task_name not in(:taskNames)
+		</sql>
+	</sqlUnit>
+	
+	<!-- 获取未能正常流程的流程实例列表 -->
+	<sqlUnit name="get_abnormal_order_list">
+		<sql>
+			select o.process_Id,o.id, p.display_name,ffl.title,u.full_name,o.version,o.create_time,
+		    (select count(*) from t_flow_attachment fa where fa.order_id=o.id) as attcount 
+		    from t_wf_order o,t_wf_process p,t_flow_form ffl,t_n_user u 
+		    where o.process_Id = p.id and o.id in(:orderIds) and o.id=ffl.order_id 
+		    and o.creator=u.id [ and (p.display_name like '%:name%' or ffl.title like '%:name%')] 
+		    [ and o.create_time >= :startDate ][ and o.create_time &gt;= :endDate] order by o.create_time asc
+		</sql>
+	</sqlUnit>
+	
+	<sqlUnit name="get_hist_task_by_order_taskKey">
+		<sql>
+			select t.id,t.display_name,t.operator from t_wf_hist_task t 
+			where t.order_id=:orderId and t.task_name=:taskKey and t.task_state=0 
+			order by t.finish_time desc limit 0,5
+		</sql>
+	</sqlUnit>
+	
+	<!-- 获取附件通过流程实例ID -->
+	<sqlUnit name="get_attachment_by_orderid">
+		<sql>
+			select a.* from t_n_attachment a,t_flow_attachment fa where a.id=fa.attachment_id and fa.order_id=:orderId 
+		</sql>
+	</sqlUnit>
+    
+    
+    <!-- 获取附件通过流程实例ID -->
+    <sqlUnit name="get_attachment_by_taskkey">
+        <sql>
+            select a.* from t_n_attachment a,t_flow_attachment fa where a.id=fa.attachment_id and fa.order_id=:orderId and fa.task_key=:taskKey 
+        </sql>
+    </sqlUnit>
+    
+    <!-- 获取流程附件信息通过附件ID -->
+    <sqlUnit name="get_flow_att_infos_byid">
+        <sql>
+            select t.id as attId, fa.id as fattId,t.file_name,t.file_size,t.file_suffix,t.create_time from t_n_attachment t,t_flow_attachment fa where t.id=fa.attachment_id and t.id in(:ids)
+        </sql>
+    </sqlUnit>
+    
+    <!-- 获取流程显示名称 -->
+    <sqlUnit name="get_flow_displayname">
+        <sql>
+            select p.display_name from t_flow_form t,t_wf_process p where t.form_data_id=:formDataId and t.process_id=p.id
+        </sql>
+    </sqlUnit>
+
+	<!-- 更新流程表单信息 -->
+	<sqlUnit name="update_flow_form_info">
+		<sql>
+			update t_flow_form set total_node_num=:totalNodeNum,execute_node_num=:executeNodeNum,progress=:progress where order_id=:orderId
+		</sql>
+	</sqlUnit>
+</sqlMap>

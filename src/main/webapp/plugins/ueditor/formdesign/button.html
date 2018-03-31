@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>表单按钮</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    <!--[if lte IE 6]>
+       <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-ie6.css">
+    <![endif]-->
+    <!--[if lte IE 7]>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/ie.css">
+    <![endif]-->
+    <link rel="stylesheet" href="leipi.style.css">
+    <link rel="stylesheet" href="css/form.design.css">
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <script type="text/javascript" src="../dialogs/internal.js"></script>
+    <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="../../../js/utils.js"></script>
+    <script type="text/javascript" src="../../../js/input-select.js"></script>
+    <style type="text/css">
+    	.help-block {
+    		margin-bottom: 0;
+    	}
+    	.table th, .table td {
+    		line-height: 20px;
+    	}
+    </style>
+    <script type="text/javascript">
+/* Thank you by  
+http://www.alt-tag.com/blog/2006/02/ie-dom-bugs/ */
+var formType = $("#form_type",parent.document).val();
+var rootPath = $("#root-path",parent.document).val();
+
+function createElement(type, name) {     
+    var element = null;     
+    try {        
+        element = document.createElement('<'+type+' name="'+name+'">');     
+    } catch (e) {}   
+    if(element==null) {     
+        element = document.createElement(type);     
+        element.name = name;     
+    } 
+    return element;     
+}
+    </script>
+</head>
+<body>
+<div class="content">
+    <table class="table table-bordered">
+     <tr>
+        <th><span>名称</span><span class="label label-important">*</span></th>
+        <td><input type="text" class="require" id="orgname" /></td>
+        <th>样式类型</th>
+        <td>
+        	<select id="org_btn_style">
+        		<option value="btn-default">默认</option>
+        		<option value="btn-primary" style="background-color: #428bca;">主要</option>
+        		<option value="btn-success" style="background-color: #449d44;">成功</option>
+        		<option value="btn-info" style="background-color: #5bc0de;">信息</option>
+        		<option value="btn-warning" style="background-color: #f0ad4e;">警告</option>
+        		<option value="btn-danger" style="background-color: #d9534f;">危险</option>
+        	</select>
+        </td>
+      </tr>
+      <tr>
+      	<th><span id="btn_id_class_label">id或class</span></th>
+      	<td colspan="3"><input type="text" id="btn_id_class" />
+      	<div class="help-block">设置ID以“#”开头,class以“.”开头。ID与class之间用空格分隔，多个class之间也用空格分隔</div>
+      	</td>
+      </tr>
+      	<th>图标</th>
+      	<td colspan="3">
+      		<input type="text" id="btn_icon" />
+      		<div class="help-block">FontAwesome图标,<a href="http://fontawesome.io/icons" target="__blank">详情</a>;</div>
+      		<div>如:“fa fa-question-circle”</div>
+      	</td>
+      </tr>
+   </table>
+</div>
+<script type="text/javascript">
+var oNode = null,thePlugins = 'button';
+window.onload = function() {
+    if( UE.plugins[thePlugins].editdom ){
+        oNode = UE.plugins[thePlugins].editdom;
+        oNode.setAttribute('name','leipiNewField');
+		var gName = oNode.getAttribute('orgname').replace(/&quot;/g,"\"");
+		var orgBtnStyle = oNode.getAttribute('org_btn_style');
+		var btnIdClass = oNode.getAttribute('btn_id_class');
+		var btnIcon = oNode.getAttribute('btn_icon');
+        $G('orgname').value = gName;
+        $G('org_btn_style').value = orgBtnStyle;
+        $G('btn_id_class').value = btnIdClass;
+        $G('btn_icon').value = btnIcon;
+    }
+}
+
+dialog.oncancel = function () {
+    if( UE.plugins[thePlugins].editdom ) {
+        delete UE.plugins[thePlugins].editdom;
+    }
+};
+dialog.onok = function (){
+	var isCheck = true;
+	var msg = null;
+	$(".require").each(function(){
+		if(utils.isEmpty($(this).val())) {
+			var title = $(this).parent().prev().find("span:first").text();
+			msg = title+"不能为空！";
+			isCheck = false;
+			$(this).focus();
+			return false;
+		}
+	});
+	if(!isCheck) {
+		alert(msg);
+		return false;
+	}
+    if( !oNode ) {
+        try {
+            oNode = createElement('button','leipiNewField');
+            oNode.setAttribute('name','leipiNewField');
+            oNode.setAttribute('leipiPlugins',thePlugins);
+            setAttr(oNode);
+            //console.log(oNode.outerHTML);
+            editor.execCommand('insertHtml',oNode.outerHTML);
+        } catch (e) {
+            try {
+                editor.execCommand('error');
+            } catch ( e ) {
+                alert('控件异常，请联系技术支持');
+            }
+            return false;
+        }
+    } else {
+    	oNode.setAttribute('name','leipiNewField');
+    	setAttr(oNode);
+        delete UE.plugins[thePlugins].editdom;
+    }
+};
+
+/**
+ * 
+ */
+function setAttr(oNode) {
+	
+	var gName = $G('orgname').value;
+    var orgBtnStyle = $G('org_btn_style').value;
+    var btnIdClass = $G('btn_id_class').value;
+    var btnIcon = $G('btn_icon').value;
+    
+    oNode.setAttribute('orgname',gName);
+	oNode.setAttribute('org_btn_style',orgBtnStyle);
+    oNode.setAttribute('btn_id_class',btnIdClass);
+    oNode.setAttribute('btn_icon',btnIcon);
+    oNode.setAttribute('type','button');
+    oNode.innerHTML = gName;
+    oNode.className = "btn "+orgBtnStyle;
+}
+</script>
+</body>
+</html>

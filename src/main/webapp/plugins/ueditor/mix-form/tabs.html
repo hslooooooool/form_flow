@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>选项卡</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+    <link rel="stylesheet" href="../formdesign/bootstrap/css/bootstrap.css">
+    <!--[if lte IE 6]>
+       <link rel="stylesheet" type="text/css" href="../formdesign/bootstrap/css/bootstrap-ie6.css">
+    <![endif]-->
+    <!--[if lte IE 7]>
+    <link rel="stylesheet" type="text/css" href="../formdesign/bootstrap/css/ie.css">
+    <![endif]-->
+    <link rel="stylesheet" href="../formdesign/leipi.style.css">
+    <link rel="stylesheet" href="../formdesign/css/form.design.css">
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <script type="text/javascript" src="../dialogs/internal.js"></script>
+    <script type="text/javascript" src="../formdesign/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="../../../js/utils.js"></script>
+    <script type="text/javascript" src="../../../js/input-select.js"></script>
+    <style type="text/css">
+    	.help-block {
+    		margin-bottom: 0;
+    	}
+    	.table th, .table td {
+    		line-height: 20px;
+    	}
+    	.table th.col1 {
+    	  width: 30px;
+    	  text-align: center;
+    	}
+    	.table td.col-num {
+    		padding-top: 10px;
+    	}
+    	.plugin_tabs_label {
+    		display: inline-block;
+    		width: 98%;
+    	}
+    </style>
+    <script type="text/javascript">
+/* Thank you by  
+http://www.alt-tag.com/blog/2006/02/ie-dom-bugs/ */
+var formType = $("#form_type",parent.document).val();
+var rootPath = $("#root-path",parent.document).val();
+    </script>
+</head>
+<body>
+<div class="content">
+     <table class="table table-striped table-bordered table-condensed"  id="tbl-tab">
+     	<thead>
+     		<tr>
+	     		<th class="col-num-title col1"><span>序号</span></th>
+	     		<th style="text-align: center"><span>选项卡名称</span></th>
+     		</tr>
+     	</thead>
+     	<tbody id="tbl-tab-body">
+     		<tr>
+     			<td class="col-num col1"><span class="badge">1</span></td>
+     			<td align="center"><input id="plugin_tabs_1" type="text" class="plugin_tabs_label require"/></td>
+     		</tr>
+     		<tr class="row-clone">
+     			<td class="col-num col1"><span class="badge">2</span></td>
+     			<td><input id="plugin_tabs_2" type="text" class="plugin_tabs_label require"/></td>
+     		</tr>
+     	</tbody>
+     </table>
+     <div class="text-center">
+         <button class="btn btn-primary" id="add-row" type="button">添加选项卡</button>
+     </div>
+     <p class="help-block" style="margin-top: 10px;font-weight: 700;color: red; text-align: center;">注意：修改选项卡时，建议先添加后删除；避免误删除选项卡标签.</p>
+</div>
+<script type="text/javascript">
+var thePlugins = 'tabs';
+var rowsCount = 2;
+var defaultRows = rowsCount;
+function addTr(substr,replacement) {
+	var tr = $(".row-clone").clone();
+	tr.removeClass("row-clone");
+	var regex = '/_'+substr+'/g';
+	$(tr).find(".badge").html(replacement);
+	tr.html(tr.html().replace(eval(regex),"_"+replacement));
+	tr.appendTo("#tbl-tab-body");
+}
+
+window.onload = function() {
+	$("#add-row").unbind('click');
+    $("#add-row").click(function(){
+    	rowsCount++;
+    	addTr(defaultRows, rowsCount);
+    });
+}
+
+dialog.oncancel = function () {
+    if( UE.plugins[thePlugins].editdom ) {
+        delete UE.plugins[thePlugins].editdom;
+    }
+};
+dialog.onok = function (){
+	var isCheck = true;
+	var msg = null;
+	$(".require").each(function(){
+		if(utils.isEmpty($(this).val())) {
+			msg = "标签名称不能为空！";
+			isCheck = false;
+			$(this).focus();
+			return false;
+		}
+	});
+	if(!isCheck) {
+		alert(msg);
+		return false;
+	}
+	var ul = '<ul class="nav nav-tabs" role="tablist">';
+	var tabContent = '<div class="tab-content">';
+	var active = '';
+	var uuid = '';
+	var labelName = '';
+	for(var i=1; i<=rowsCount; i++) {
+		if(i == 1) {
+			active = 'active';
+		} else {
+			active = '';
+		}
+		labelName = $("#plugin_tabs_"+i).val();
+		uuid = utils.UUID();
+		ul += '<li role="presentation" class="'+active+'"><a id="'+uuid+'" mixform-plugins="a_tabs" href="#tab-'+uuid+'" role="tab" data-toggle="tab"> '+labelName+' </a></li>';
+		tabContent += '<div role="tabpanel" class="tab-pane '+active+'" id="tab-'+uuid+'"><br/><p>这里添加“'+labelName+'”选项卡的内容</p></div>';
+	}
+	ul += '</ul>';
+	tabContent += '</div>';
+	editor.execCommand('inserthtml',ul+tabContent);
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+	<bean name="task" class="cn.com.smart.flow.ext.ExtTaskParser"/>
+	<bean class="org.snaker.engine.access.dialect.MySqlDialect"/>
+	<!--
+	<bean class="org.snaker.engine.impl.LogInterceptor"/>
+	<bean class="org.snaker.engine.spring.SpelExpression"/>
+	<bean class="org.snaker.engine.impl.SurrogateInterceptor"/>-->
+	<bean class="cn.com.smart.flow.CustomAccessStrategy"/>
+</config>

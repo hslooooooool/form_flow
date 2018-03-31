@@ -1,0 +1,7 @@
+@CHARSET "UTF-8";
+.ztree li.li-inline {float: left;padding-right:5px; }
+.ztree li span.button.opauth_ico_docu{margin-right:2px; background: url("../images/ztree_opauth.gif") no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
+.ztree li span.button.org-leaf_ico_docu{margin-right:2px;background: url("../images/ztree_org.png") no-repeat scroll 0 0 transparent;vertical-align:top; *vertical-align:middle}
+.ztree li span.button.bg-img-none {background-image: none}
+.ztree li span.button.user_ico_docu{margin-right:2px;background: url("../images/ztree_user.gif") no-repeat scroll 0 0 transparent;vertical-align:top; *vertical-align:middle}
+.ztree li span.button.position_ico_docu{margin-right:2px;background: url("../images/ztree_position.gif") no-repeat scroll 0 0 transparent;vertical-align:top; *vertical-align:middle}

@@ -1,0 +1,21 @@
+@CHARSET "UTF-8";
+body {
+	font-family:"微软雅黑","Microsoft YaHei","WenQuanYi Micro Hei",SimSun, sans-serif,"Open Sans", Arial, "Hiragino Sans GB", "STHeiti", "WenQuanYi Micro Hei";
+}
+#form-designer fieldset {padding:0px 0 2px 10px;border: 1px solid #ddd;border-radius:5px;}
+#form-designer legend {font-weight: 700;color: #2779aa;font-size: 12px;}
+#form-designer .nav>li>a{padding: 5px 5px;}
+.edui-dialog,.edui-dialog div {
+  -webkit-box-sizing:content-box;
+  -moz-box-sizing: content-box;
+  box-sizing:content-box;
+}
+.form-horizontal .form-group {margin-left: 0;margin-right: 0;margin-bottom: 5px;}
+.help-block.small {
+    font-size: 10px; 
+    margin-top:0px;
+    margin-bottom: 0px; 
+}
+.form-designer-tools li {
+    padding: 5px;
+}

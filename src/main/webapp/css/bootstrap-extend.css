@@ -1,0 +1,8 @@
+@CHARSET "UTF-8";
+/**************扩展Bootstrap样式**********************/
+.nav.nav-sm>li>a {
+  padding: 3px 10px;
+}
+.input-group-xs>.form-control { padding: 3px;}
+.input-group-xs>.form-control, .input-group-xs>.input-group-addon, .input-group-xs>.input-group-btn>.btn {
+  height: 26px;padding: 3px 8px;border-radius: 2px;font-size: 10px;}

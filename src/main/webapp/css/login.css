@@ -1,0 +1,50 @@
+@CHARSET "UTF-8";
+/******用户登录********/
+body {
+	margin: 0;
+	padding: 0;
+	background: #0386cc url("../images/bk02.png") repeat-x;
+}
+body,.login-main {
+	min-width:1000px;
+}
+.login {font-size: 14px;}
+.login-main {height:444px;background: url("../images/login-bg.png") no-repeat;  }
+.login-title {
+	font-weight: 700;
+	font-size: 16px;
+	color: #fff;
+	padding-left: 5px;
+}
+.login-main-content {
+	padding:45px 0 0 430px;
+  }
+.login-content {
+	padding-top:15px; 
+}
+.login-input {padding-bottom:8px; }
+.login-btn {border:none;background:url("../images/loginab.png") no-repeat;padding:0;vertical-align: middle;height:34px;width: 86px;color:white;font-weight:700;cursor: pointer;}
+.login-info {margin-left: 10%;}
+
+.input-text,.input-text-focus,.input-text-code,.input-text-code-focus {
+	border:none;background:url("../images/ipt.png") no-repeat 0 0;height:35px;line-height:25px;vertical-align:middle;padding:8px;}
+.input-text,.input-text-focus {width: 300px;}
+.input-text-focus {background-position: 0 -35px}
+.input-text-code,.input-text-code-focus {width: 197px}
+.input-text-code {background-position: 0 -176px}
+.input-text-code-focus {background-position: 0 -211px}
+.login-btn-wrap {
+	padding-left: 50px;
+}
+#imgCode {cursor: pointer;}
+.full-header>.navbar-default {background: url("../images/header-bg.png") no-repeat;border: none;padding-left: 15px;padding-right: 30px;}
+.full-header .navbar {height: 155px;}
+.full-header h4 {
+	font-family: "微软雅黑", "Microsoft YaHei UI", "黑体", "宋体", Arial, Verdana, serif;
+	font-size: 26px;
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+	color: #fff;
+}
+.navbar-brand>img.text-inline-block{display: inline-block;}
+.footer {margin-top: 20px;color: #eee;text-align: center;padding: 15px 0;}

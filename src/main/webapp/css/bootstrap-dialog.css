@@ -1,0 +1,151 @@
+.bootstrap-dialog {
+
+}
+.bootstrap-dialog .modal-header {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+.bootstrap-dialog .bootstrap-dialog-title {
+    color: #fff;
+    display: inline-block;
+}
+.bootstrap-dialog.type-default .bootstrap-dialog-title {
+    color: #333;
+}
+.bootstrap-dialog.size-normal .bootstrap-dialog-title {
+    font-size: 16px;
+}
+.bootstrap-dialog.size-large .bootstrap-dialog-title {
+    font-size: 24px;
+}
+.bootstrap-dialog .bootstrap-dialog-close-button {
+    float: right;
+   /* filter:alpha(opacity=80);
+    -moz-opacity:0.8;
+    -khtml-opacity: 0.8;
+    opacity: 0.8;*/
+	background: url(../images/bs-dialog-close.png) no-repeat;
+	vertical-align: middle;
+	width: 20px;
+	height: 18px;
+	margin-top: -13px;
+	margin-right: -19px;
+	text-indent: -9999px;
+	cursor: pointer;
+	background-position: -1px 0;
+}
+.bootstrap-dialog.size-normal .bootstrap-dialog-close-button {
+    font-size: 20px;
+}
+.bootstrap-dialog.size-large .bootstrap-dialog-close-button {
+    font-size: 30px;
+}
+.bootstrap-dialog .bootstrap-dialog-close-button:hover {
+    cursor: pointer;
+    background-position: -22px 0;
+   /* filter: alpha(opacity=100);
+    -moz-opacity: 1;
+    -khtml-opacity: 1;
+    opacity: 1;*/
+}
+.bootstrap-dialog.size-normal .bootstrap-dialog-message {
+    /*font-size: 16px;*/
+    font-size: 14px;
+}
+.bootstrap-dialog.size-large .bootstrap-dialog-message {
+    font-size: 18px;
+}
+.bootstrap-dialog.type-default .modal-header {
+    background-color: #fff;
+}
+.bootstrap-dialog.type-info .modal-header {
+    background-color: #5bc0de;
+}
+.bootstrap-dialog.type-primary .modal-header {
+    background-color: #428bca;
+    /*background-color: #4C8CA2;*/
+}
+.bootstrap-dialog.type-success .modal-header {
+    background-color: #5cb85c;
+}
+.bootstrap-dialog.type-warning .modal-header {
+    background-color: #f0ad4e;
+}
+.bootstrap-dialog.type-danger .modal-header {
+    background-color: #d9534f;
+}
+.bootstrap-dialog .bootstrap-dialog-button-icon {
+    margin-right: 3px;
+}
+
+/**
+ * Icon animation
+ * Copied from font-awesome: http://fontawesome.io/
+ **/
+.icon-spin {
+    display: inline-block;
+    -moz-animation: spin 2s infinite linear;
+    -o-animation: spin 2s infinite linear;
+    -webkit-animation: spin 2s infinite linear;
+    animation: spin 2s infinite linear;
+}
+@-moz-keyframes spin {
+    0% {
+    -moz-transform: rotate(0deg);
+}
+100% {
+    -moz-transform: rotate(359deg);
+}
+}
+@-webkit-keyframes spin {
+    0% {
+    -webkit-transform: rotate(0deg);
+}
+100% {
+    -webkit-transform: rotate(359deg);
+}
+}
+@-o-keyframes spin {
+    0% {
+    -o-transform: rotate(0deg);
+}
+100% {
+    -o-transform: rotate(359deg);
+}
+}
+@-ms-keyframes spin {
+    0% {
+    -ms-transform: rotate(0deg);
+}
+100% {
+    -ms-transform: rotate(359deg);
+}
+}
+@keyframes spin {
+    0% {
+    transform: rotate(0deg);
+}
+100% {
+    transform: rotate(359deg);
+}
+}
+
+/*************重写bootstrap的样式*************/
+.modal-body {padding: 5px;}
+.table {margin-bottom:0;}
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+vertical-align: middle;
+}
+.s-require {
+	display: inline-table;
+	padding:0 0 0 5px;
+	vertical-align: middle;
+	color: red;
+	font-weight: 700;
+}
+.modal-footer {
+	margin-top: 0;
+    padding: 8px 20px 8px;
+}
+.not-modal-footer {margin-top: 0;padding: 0 0 5px 0;border-top:none;}
+/** End of icon animation **/

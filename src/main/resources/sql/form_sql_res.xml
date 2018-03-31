@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap SYSTEM "./mapsql.dtd">
+<sqlMap>
+	<!-- 流程用到的sql语句 -->
+	
+	<!-- 获取表单字段-->
+	<sqlUnit name="get_name_fields">
+		<sql>select name from t_form_field where table_name=:tableName</sql>
+	</sqlUnit>
+	<!-- 表单管理 -->
+	<sqlUnit name="form_mgr_list">
+	     <sql>select t.id,t.name,
+	     (select tmp.busi_name from t_n_dict tmp where tmp.busi_value=t.type and tmp.parent_id=(select id from t_n_dict where busi_value='FORM_TYPE')) as type,
+	     t.field_num,u.full_name,t.create_time from t_form t,t_n_user u where t.creator=u.id [ and t.name like '%:name%'] [ and t.type=:type] order by t.create_time asc</sql>
+	</sqlUnit>
+	
+	<!-- 删除表单 -->
+	<sqlUnit name="del_form">
+	     <sql>
+	        delete from t_form where id in(:id);
+	        delete from t_form_field where form_id in(:id)
+	     </sql>
+	</sqlUnit>
+	
+	<!-- 获取表单对应数据表 -->
+	<sqlUnit name="form_table_mgr_list">
+	    <sql>select t.id,t.table_name,t.remark,u.full_name,t.create_time,(select count(*) from t_create_table_field t2 where t2.table_id=t.id) as num 
+	    from t_create_table t,t_n_user u where t.user_id = u.id [ and (t.table_name like '%:name%' or t.remark like '%:name%')] [ and u.org_id in(:orgIds)]</sql>
+	</sqlUnit>
+	
+	<!-- 获取表选项(用于表单设计) -->
+	<sqlUnit name="table_item">
+	    <sql>select t.id,t.table_name,t.remark from t_create_table t order by t.create_time asc </sql>
+	</sqlUnit>
+	
+	<!-- 获取表字段信息(用于表单设计) -->
+	<sqlUnit name="table_fields">
+	    <sql>select t.id,t.field_name,t.field_remark from t_create_table_field t where t.table_id=:id order by t.sort_order asc </sql>
+	</sqlUnit>
+	
+	<!-- 获取表及字段信息 -->
+	 <sqlUnit name="get_table_fields_value_map">
+	    <sql>
+	       select t.id,t.`plugins`,t.table_id,ft.table_name,t.table_field_id,ftf.field_name from t_form_field t,t_create_table ft,t_create_table_field ftf where t.form_id=:formId and t.table_id=ft.id and t.table_field_id=ftf.id order by t.`plugins` desc 
+	    </sql>
+	 </sqlUnit>
+	 
+	 <!-- 表单帮助信息管理列表 -->
+	 <sqlUnit name="form_helper_mgr_list">
+	 	<sql>
+	 		select fh.id,fh.title,
+	 		(select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=fh.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state 
+	 		,u.full_name,fh.create_time from t_form_helper fh,t_n_user u 
+	 		where fh.user_id=u.id [ and fh.title like '%:title%'] [ and fh.state=:state ] 
+	 		order by fh.create_time asc
+	 	</sql>
+	 </sqlUnit>
+	 
+	 <!-- 获取表单帮助选项 -->
+	 <sqlUnit name="get_form_helper_items">
+	 	<sql>
+	 		select fh.id,fh.title from t_form_helper fh where fh.state=1 order by fh.create_time asc 
+	 	</sql>
+	 </sqlUnit>
+	 
+	 <!-- 根据字段ID获取表字段 -->
+	 <sqlUnit name="get_table_fields">
+	 	<sql>
+	 		select * from t_create_table_field t where t.id in(:ids)
+	 	</sql>
+	 </sqlUnit>
+     
+     <!-- 根据字段ID获取表名称和字段名称 -->
+     <sqlUnit name="get_tablename_fieldname_byfieldid">
+        <sql>
+            select t.table_name,tf.field_name from t_create_table_field tf,t_create_table t where tf.table_id=t.id and tf.id=:fieldId
+        </sql>
+     </sqlUnit>
+     
+     <!-- 获取字段值 -->
+     <sqlUnit name="get_field_value">
+        <sql>
+            select ${fieldName} from ${tableName} where form_data_id=:formDataId
+        </sql>
+     </sqlUnit>
+     
+     <!-- 获取标题对应的字段ID -->
+    <sqlUnit name="get_institle_fieldid_by_form">
+        <sql>
+           select t.table_field_id from t_form_field t where t.form_id=:formId and t.is_institle='1'
+        </sql>
+    </sqlUnit>
+     
+     <!-- 更新字段值 -->
+     <sqlUnit name="update_field_value">
+        <sql>
+            update ${tableName} set ${fieldName} where form_data_id=:formDataId
+        </sql>
+     </sqlUnit>
+
+	<!--获取需要记录日志的字段信息-->
+	<sqlUnit name="log_field_info">
+		<sql>
+			select ff.table_id as tableId,ct.table_name as tableName,ctf.field_name as tableFieldName,
+			ff.table_field_id as tableFieldId,ff.plugins
+			from t_form_field ff,t_create_table ct,t_create_table_field ctf
+			where ff.table_id=ct.id and ff.table_field_id=ctf.id and ff.is_log=1 and ff.form_id=:formId
+		</sql>
+	</sqlUnit>
+	
+	<!-- 表单资源管理 -->
+	<sqlUnit name="form_resource_mgr_list">
+	    <sql>
+          select t.id,t.name,t.uri,(select tmp.busi_name from t_n_dict tmp where tmp.busi_value=t.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state,
+          t.create_time 
+           from t_n_resource t where t.type='form_resource' order by t.create_time asc 
+       </sql>
+	</sqlUnit>
+	<!-- 选择表单列表 -->
+	<sqlUnit name="select_form_list">
+		<sql>
+			select t.id, t.name from t_form t where t.type='normal_form' order by t.create_time desc
+		</sql>
+	</sqlUnit>
+	
+	<!-- 表单附件列表 -->
+     <sqlUnit name="form_attachment_list">
+         <sql>
+             select fa.id,fa.attachment_id,a.file_name,a.file_size,a.file_suffix,a.create_time,u.full_name,a.user_id  
+             from t_form_attachment fa,t_n_attachment a,t_n_user u where fa.attachment_id=a.id and a.user_id = u.id 
+              [ and fa.form_data_id=:formDataId] [ and fa.form_id=:formId and a.user_id=:userId and (fa.form_data_id is null or fa.form_data_id = '')]
+         </sql>
+     </sqlUnit>
+     <!-- 更新表单附件表中的form_data_id -->
+     <sqlUnit name="update_form_data_id">
+         <sql>
+             update t_form_attachment set form_data_id=:formDataId where form_data_id=:tmplFormDataId
+         </sql>
+     </sqlUnit>
+     
+     <!-- 获取表单附件信息通过附件ID -->
+    <sqlUnit name="get_form_att_infos_byid">
+        <sql>
+            select t.id as attId, fa.id as fattId,t.file_name,t.file_size,t.file_suffix,t.create_time from t_n_attachment t,t_form_attachment fa where t.id=fa.attachment_id and t.id in(:ids)
+        </sql>
+    </sqlUnit>
+    <!-- 获取表单实例列表 -->
+    <sqlUnit name="get_form_instance_list">
+        <sql>
+            select t.id, t.title,u.full_name,t.create_time,t.form_id, t.form_data_id  
+            from t_form_instance t,t_n_user u,t_form f where t.form_id=f.id and t.user_id=u.id 
+            [ and (t.title like '%:name%' or f.name like '%:name%')] order by t.create_time desc
+        </sql>
+    </sqlUnit>
+    
+      <!-- 获取表单表名称 -->
+        <sqlUnit name="get_table_name">
+            <sql>select distinct tct.table_name from t_form_field ft,t_create_table tct where ft.form_id=:formId and ft.table_id=tct.id</sql>
+        </sqlUnit>
+        
+        <!-- 删除表单中的实例信息 -->
+        <sqlUnit name="del_form_data">
+           <sql>delete from ${table} where form_data_id=:formDataId</sql>
+        </sqlUnit>
+        
+        <sqlUnit name="update_form_inst_title">
+            <sql>
+                update t_form_instance set title=:title where form_data_id=:formDataId
+            </sql>
+        </sqlUnit>
+        <!-- 获取过期的表单附件（超过24小时） -->
+        <sqlUnit name="get_expire_form_attachment">
+            <sql>
+                select * from t_form_attachment t where t.form_data_id like 'NEW_%' and t.create_timestamp &lt;:expireTime
+            </sql>
+        </sqlUnit>
+        <!-- 获取表及字段名称通过指定表单和插件类型 -->
+        <sqlUnit name="get_table_fields_by_plugin">
+            <sql>
+                select ct.table_name,ctf.field_name from t_form_field ff, t_create_table ct,t_create_table_field ctf 
+                where ff.table_id = ct.id and ff.table_field_id = ctf.id and ff.form_id=:formId and ff.plugins in(:plugins)
+            </sql>
+        </sqlUnit>
+        <!-- 获取表单附件信息根据附件ID -->
+        <sqlUnit name="get_form_att_by_attid">
+            <sql>
+                select t.* from t_form_attachment t where t.attachment_id in(:attIds)
+            </sql>
+        </sqlUnit>
+        
+        <!-- 获取表单附件信息根据表单数据ID -->
+        <sqlUnit name="get_form_att_by_formdataid">
+            <sql>
+                select t.* from t_form_attachment t where t.form_data_id=:formDataId
+            </sql>
+        </sqlUnit>
+</sqlMap>

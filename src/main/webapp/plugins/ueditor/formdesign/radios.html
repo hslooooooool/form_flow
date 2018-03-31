@@ -1,0 +1,597 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>复选框</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    <!--[if lte IE 6]>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-ie6.css">
+    <![endif]-->
+    <!--[if lte IE 7]>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/ie.css">
+    <![endif]-->
+    <link rel="stylesheet" href="leipi.style.css">
+    <script type="text/javascript" src="../dialogs/internal.js"></script>
+    <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+    
+    <link rel="stylesheet" href="css/form.design.css">
+    <script type="text/javascript" src="../../../js/utils.js"></script>
+    
+    <link href="../../zTree/css/zTreeStyle.css" type="text/css" rel="stylesheet"  />
+	<script src="../../zTree/js/jquery.ztree.core-3.5.min.js" type="text/javascript" ></script>
+	<script src="../../zTree/js/jquery.ztree.excheck-3.5.min.js" type="text/javascript" ></script>
+	<script src="../../zTree/js/jquery.ztree.exedit-3.5.min.js" type="text/javascript" ></script>
+	<script src="../../zTree/js/jquery.ztree.exhide-3.5.min.js" type="text/javascript" ></script>
+	
+	<link href="../../../css/ztree-rewrite.css" type="text/css" rel="stylesheet"  />
+	<link href="../../../css/jquery-ui-rewrite.css" rel="stylesheet" type="text/css" />
+	<link href="../../../css/common.css" rel="stylesheet" type="text/css" />
+	<link href="../../../css/cnoj-ui.css" rel="stylesheet" type="text/css" />
+	<link href="../../../css/styles.css" rel="stylesheet" />
+	<link href="../../../css/layout.css" rel="stylesheet" />
+	
+	<script src="../../../js/ztree-util.js" type="text/javascript"></script>
+    
+<script type="text/javascript">
+var isFlowForm = false;
+var formType = $("#form_type",parent.document).val();
+var rootPath = $("#root-path",parent.document).val();
+var isTreeDestory = false;
+if(typeof(formType) !== 'undefined' && formType == 'flow_form') {
+	isFlowForm = true;
+}
+function createElement(type, name) {     
+    var element = null;     
+    try {        
+        element = document.createElement('<'+type+' name="'+name+'">');     
+    } catch (e) {}   
+    if(element==null) {     
+        element = document.createElement(type);     
+        element.name = name;     
+    } 
+    return element;     
+}
+
+
+//checkboxs
+function isIE() {
+    if(window.attachEvent){
+        return true;
+    }
+    return false;
+}
+//moveRow在IE支持而在火狐里不支持！以下是扩展火狐下的moveRow
+if (!isIE()) {
+    function getTRNode(nowTR, sibling) {
+        while (nowTR = nowTR[sibling]) if (nowTR.tagName == 'TR') break;
+        return nowTR;
+    }
+    if (typeof Element != 'undefined') {
+        Element.prototype.moveRow = function(sourceRowIndex, targetRowIndex) //执行扩展操作
+        {
+            if (!/^(table|tbody|tfoot|thead)$/i.test(this.tagName) || sourceRowIndex === targetRowIndex) return false;
+            var pNode = this;
+            if (this.tagName == 'TABLE') pNode = this.getElementsByTagName('tbody')[0]; //firefox会自动加上tbody标签，所以需要取tbody，直接table.insertBefore会error
+            var sourceRow = pNode.rows[sourceRowIndex],
+            targetRow = pNode.rows[targetRowIndex];
+            if (sourceRow == null || targetRow == null) return false;
+            var targetRowNextRow = sourceRowIndex > targetRowIndex ? false: getTRNode(targetRow, 'nextSibling');
+            if (targetRowNextRow === false) pNode.insertBefore(sourceRow, targetRow); //后面行移动到前面，直接insertBefore即可
+            else { //移动到当前行的后面位置，则需要判断要移动到的行的后面是否还有行，有则insertBefore，否则appendChild
+                if (targetRowNextRow == null) pNode.appendChild(sourceRow);
+                else pNode.insertBefore(sourceRow, targetRowNextRow);
+            }
+        }
+    }
+}
+
+/*删除tr*/
+function fnDeleteRow(obj) {
+    var oTable = document.getElementById("options_table");
+    while(obj.tagName !='TR') {
+        obj = obj.parentNode;
+    }
+    oTable.deleteRow(obj.rowIndex);
+}
+
+/*删除tr*/
+function fnDeleteRowByValue(value) {
+    var $input = $("#options_table").find("input[value='"+value+"']");
+    if(null != $input && typeof($input.attr("type")) !== 'undefined') 
+    	$input.parent().parent().remove();
+}
+
+/*上移*/
+function fnMoveUp(obj) {
+    var oTable = document.getElementById("options_table");
+    while(obj.tagName !='TR') {
+        obj = obj.parentNode;
+    }
+    var minRowIndex = 1;
+    var curRowIndex = obj.rowIndex;
+    if(curRowIndex-1>=minRowIndex) {
+        oTable.moveRow(curRowIndex,curRowIndex-1); 
+    }
+    
+}
+/*下移*/
+function fnMoveDown(obj) {
+    var oTable = document.getElementById("options_table");
+    while(obj.tagName !='TR') {
+        obj = obj.parentNode;
+    }
+    var maxRowIndex = oTable.rows.length;
+    var curRowIndex = obj.rowIndex;
+    if(curRowIndex+1<maxRowIndex) {
+        oTable.moveRow(curRowIndex,curRowIndex+1); 
+    }
+}
+
+/*生成tr*/
+function fnAddComboTr(gName,obj) {
+    var oTable = document.getElementById('options_table');
+    var new_tr_node= oTable.insertRow(oTable.rows.length);
+    var new_td_node0 = new_tr_node.insertCell(0),new_td_node1 = new_tr_node.insertCell(1),new_td_node2 = new_tr_node.insertCell(2);
+
+    var sChecked = '';
+    if(obj.checked) sChecked = 'checked="checked"';
+    if(!obj.name) obj.name = '';
+    if(!obj.value) obj.value = '';
+    new_td_node0.innerHTML = '<td><input type="radio" '+sChecked+' value="'+obj.value+'" name="'+gName+'"></td>';
+    new_td_node1.innerHTML = '<td><input type="text" value="'+obj.value+'" name="'+gName+'" placeholder="选项值"></td>';
+    new_td_node2.innerHTML ='<td><div class="btn-group"><a title="上移" class="btn btn-small btn-info" href="javascript:void(0);" onclick="fnMoveUp(this)"><i class="icon-white icon-arrow-up"></i></a><a title="下移" class="btn btn-small btn-info" href="javascript:void(0);" onclick="fnMoveDown(this)"><i class="icon-white icon-arrow-down"></i></a><a title="删除" class="btn btn-small btn-default" href="javascript:void(0);" onclick="fnDeleteRow(this)"><i class="icon-ban-circle"></i></a></div></td>';
+    return true;
+}
+function fnAdd() {
+    var dName = $G('hidname').value;
+    if(!dName) dName = 'leipiNewField';
+    fnAddComboTr(dName,{
+        "checked":false,
+        "name":'leipiNewField',
+        "value":''
+    });
+}
+/*组合checkbox*/
+function fnParseOptions(gName,gChecked) {
+    var oTable = document.getElementById('options_table');
+    var nTr = oTable.getElementsByTagName('tr'),trLength = nTr.length,html="";
+    for(var i=0;i<trLength;i++) {
+        var inputs = nTr[i].getElementsByTagName('input');
+        if(inputs.length>0){
+            if(!inputs[1].value) continue;
+            var sChecked = '';
+            if(inputs[0].checked) sChecked = 'checked="checked"';
+            var value = inputs[1].value;
+            var text = value;
+            if(value != '') {
+            	var values = value.split("#");
+            	if(values.length>1) {
+            		value = value;
+            		text = values[1];
+            	}
+            }
+            html  += '<input name="'+gName+'" value="'+value+'" '+sChecked+' type="radio"/>'+text+'&nbsp;';
+            if(gChecked=='orgchecked1')//竖排
+                html+='<br/>';
+        }
+    }
+    //alert(html);
+    return html;
+
+}
+    </script>
+</head>
+<body>
+<div class="content">
+    <input id="hidname"  type="hidden"/>
+    <table class="table table-bordered">
+      
+      <tr>
+        <th><span>标题</span><span class="label label-important">*</span></th>
+        <td><input type="text" class="require" id="orgtitle" /></td>
+        <th><span>必填字段</span></th>
+        <td><label class="checkbox inline"><input id="fieldrequire" type="checkbox"/>是</label></td>
+      </tr>
+      <tr>
+        <script type="text/javascript">
+          if(isFlowForm) {
+        	  document.write('<th><span>排列方式</span></th><td><label class="radio" title="选项一 选项二"><input id="orgchecked0" checked="checked" name="checked" type="radio"> 横排 </label>'+
+        			  '<label class="radio" title="选项一&#10;选项二"><input id="orgchecked1" name="checked" type="radio" > 竖排 </label></td>');
+        	  document.write('<th><span>流程变量</span></th><td><label class="checkbox inline"><input id="fieldflow" type="checkbox"/>是</label></td>');
+          } else {
+        	  document.write('<th><span>排列方式</span></th><td colspan="3"><label class="radio" title="选项一 选项二"><input id="orgchecked0" checked="checked" name="checked" type="radio"> 横排 </label>'+
+			  '<label class="radio" title="选项一&#10;选项二"><input id="orgchecked1" name="checked" type="radio" > 竖排 </label></td>');
+          }
+       </script>
+    </tr>
+    
+    <tr>
+        <th><span>绑定表</span><span class="label label-important">*</span></th>
+        <td>
+           <select id="bind_table" class="require">
+           		<option class="" value="">无</option>
+              <option class="cnoj-dyn-opt" value="">正在加载数据</option>
+           </select>
+        </td>
+        <th><span>绑定字段</span><span class="label label-important">*</span></th>
+        <td colspan="3">
+           <select id="bind_table_field" class="require">
+           		<option class="" value="">无</option>
+               <option class="cnoj-dyn-opt" value="">正在加载数据</option>
+           </select>
+        </td>
+    </tr>
+    
+    <tr>
+       <th><span>数据来源</span></th>
+       <td>
+           <select id="from-data">
+               <option value="dict">数据字典</option>
+               <option value="cus_uri">自定义来源</option>
+               <option value="cus_item">自定义选项</option>
+           </select>
+       </td>
+       <th class="not-item not-item-label"><span>选择数据</span><span class="label label-important">*</span></th>
+       <td class="not-item not-item-input">
+           <input type="text" id="data-value" placeholder="点击选择数据" />
+       </td>
+      </tr>
+      <tr>
+       <th><span>动态加载</span></th>
+       <td>
+       		<label class="checkbox inline">
+			  <input type="checkbox" id="item_dynamic_load" checked="checked" /> 是
+			</label>
+       </td>
+          <th><span>记录日志</span></th>
+          <td>
+              <label class="checkbox inline"><input id="is-log" type="checkbox"/> 是 </label>
+          </td>
+      </tr>
+   
+    <tr>
+        <td colspan="4">
+            <table class="table table-condensed" id="options_table">
+                <tr>
+                    <th>选中</th>
+                    <th>选项值 <span class="text-warning">(值与名称之间用“#”号分割)</span></th>
+                    <th>操作</th>
+                </tr>
+                <!--tr>
+                    <td><input type="checkbox" checked="checked"></td>
+                    <td><input type="text" value="选项一"></td>
+                    <td>
+                        <div class="btn-group">
+                            <a title="上移" class="btn btn-small btn-info" href="#"><i class="icon-white icon-arrow-up"></i></a>
+                            <a title="下移" class="btn btn-small btn-info" href="#"><i class="icon-white icon-arrow-down"></i></a>
+                            <a title="删除" class="btn btn-small btn-default"><i class="icon-ban-circle"></i></a>
+                        </div>
+                    </td>
+                </tr-->
+
+            </table>
+            <a title="添加选项" class="btn btn-primary" onclick="fnAdd();">添加选项</a>
+        </td>
+    </tr>
+
+
+    </table>
+</div>
+<script type="text/javascript">
+var oNode = null,thePlugins = 'radios';
+var tableDefValue = null,fieldDefValue = null;
+var uri = null;
+window.onload = function() {
+    if( UE.plugins[thePlugins].editdom ) {
+        oNode = UE.plugins[thePlugins].editdom;
+        var gTitle=oNode.getAttribute('orgtitle').replace(/&quot;/g,"\""),
+        gRequrie = oNode.getAttribute('fieldrequire'),
+        dynamicLoad = oNode.getAttribute('dynamicload'),
+        gBindTable = oNode.getAttribute('bind_table'),gBindField=oNode.getAttribute('bind_table_field');
+        var gFromData = oNode.getAttribute('from_data'),gDataValue = oNode.getAttribute('data_value');
+        var gIsLog = oNode.getAttribute('is_log');
+        //为了兼容以前的版本
+        if(utils.isEmpty(gFromData)) {
+        	gFromData = oNode.getAttribute('from-data');
+        	gDataValue = oNode.getAttribute('data-value');
+        	dynamicLoad = '0';
+        }
+        
+        gTitle = gTitle==null ? '' : gTitle;
+        $G('orgtitle').value = gTitle;
+        $G('from-data').value = gFromData;
+        $G('data-value').value = gDataValue;
+        $G('bind_table').value = gBindTable;
+        $G('bind_table_field').value = gBindField;
+
+        tableDefValue = gBindTable;
+        fieldDefValue = gBindField;
+        if (gRequrie == '1') {
+            $G('fieldrequire').checked = true;
+        }
+        if(dynamicLoad == '1') {
+        	 $G('item_dynamic_load').checked = true;
+        } else {
+        	$G('item_dynamic_load').checked = false;
+        }
+        if(gIsLog == '1') {
+            $G('is-log').checked = true;
+        } else {
+            $G('is-log').checked = false;
+        }
+        var gName=oNode.getAttribute('fieldname');
+        if(isFlowForm) {
+        	var gFlow=oNode.getAttribute('fieldflow');
+            if (gFlow == '1') {
+                $G('fieldflow').checked = true;
+            }
+        }
+        $G('hidname').value = gName;
+        var checked = oNode.getAttribute('orgchecked');
+        checked=='orgchecked1' ? $G('orgchecked1').checked = true : $G('orgchecked0').checked = true;
+        var inputTags = oNode.getElementsByTagName('input');
+        var length = inputTags.length;
+        var aInputs = [];
+        if(gFromData == 'cus_item') {
+        	for(var i=0;i<length;i++) {
+	            //testEle.setAttribute("test","aaa"); // 自定义属性 设置  
+	            //testEle.attributes["test"].nodeValue; // 获得 
+	            if(inputTags[i].type =='radio')
+	                fnAddComboTr(gName,inputTags[i]);
+        	}
+        }
+    }
+    utils.selectItem("#bind_table",rootPath+'/form/table/item.json',tableDefValue,function(val){
+    	utils.selectCascadeItem("#bind_table_field", "#bind_table", rootPath+'/form/table/fields.json', "id", fieldDefValue, null);
+	});
+    
+    var fromDataValue = $("#from-data").val();
+    if(fromDataValue=='dict') {
+    	initDictData("#data-value");
+    } else if(fromDataValue=='cus_item') {
+    	$("#data-value").removeClass("require");
+    	$(".not-item .label").addClass("hide");
+    	$("#data-value").val("");
+    	$("#data-value").attr("placeholder","");
+    	$("#data-value").prop("disabled",true);
+    	$("#item_dynamic_load").prop("checked",false);
+    	$("#item_dynamic_load").prop("disabled",true);
+    	oNode.setAttribute('data_value',null);
+    	oNode.setAttribute('data_uri',null);
+    }
+    $("#from-data").change(function(){
+    	switch($(this).val()) {
+    	case 'dict':
+    		$("#data-value").addClass("require");
+    		$(".not-item .label").removeClass("hide");
+    		$("#data-value").prop("disabled",false);
+    		$("#item_dynamic_load").prop("disabled",false);
+    		$("#data-value").attr("placeholder","");
+    		isTreeDestory = false;
+    		initDictData("#data-value");
+    		var $span = $(".not-item.not-item-label").find("span:eq(0)");
+    		$span.html("选择数据");
+    		break;
+    	case 'cus_uri':
+    		$("#data-value").addClass("require");
+    		$(".not-item .label").removeClass("hide");
+    		$("#data-value").prop("disabled",false);
+    		$("#item_dynamic_load").prop("disabled",false);
+    		isTreeDestory = true;
+    		destoryTree("#data-value");
+    		$("#data-value").val("");
+    		$("#data-value").attr("placeholder","请填写自定义数据来源");
+
+    		$("#data-value").prop("readonly",false);
+    		var $span = $(".not-item.not-item-label").find("span:eq(0)");
+    		$span.html("数据来源");
+    		break;
+    	case 'cus_item':
+    		$("#data-value").removeClass("require");
+    		$(".not-item .label").addClass("hide");
+    		isTreeDestory = true;
+    		destoryTree("#data-value");
+    		$("#data-value").val("");
+    		$("#data-value").attr("placeholder","");
+    		$("#data-value").prop("disabled",true);
+    		$("#item_dynamic_load").prop("checked",false);
+    		$("#item_dynamic_load").prop("disabled",true);
+    		break;
+    	}
+	});
+    
+}
+dialog.oncancel = function() {
+    if( UE.plugins[thePlugins].editdom ) {
+        delete UE.plugins[thePlugins].editdom;
+    }
+};
+
+dialog.onok = function() {
+	var isCheck = true;
+	var msg = null;
+	$(".require").each(function(){
+		if(utils.isEmpty($(this).val())) {
+			var title = $(this).parent().prev().find("span:first").text();
+			msg = title+"不能为空！";
+			isCheck = false;
+			$(this).focus();
+			return false;
+		}
+	});
+	if(!isCheck) {
+		alert(msg);
+		return false;
+	}
+    var gChecked = 'orgchecked0';
+    var gFlow = '0';
+	var gTitle=$G('orgtitle').value.replace(/\"/g,"&quot;");
+    var bindTable = $G('bind_table').value;
+    var bindTableField = $G('bind_table_field').value;
+    var fromData = $G('from-data').value;
+    var fromDataUri = null;
+    var dataValue = $G('data-value').value;
+    var gName = bindTable+"-"+bindTableField;
+    if(utils.isEmpty(bindTableField)) {
+    	gName = "";
+    }
+    var dynamicLoad = '0';
+    if($G('item_dynamic_load').checked) {
+        dynamicLoad = '1';
+    }
+   
+    if ($G('orgchecked1').checked) 
+    	gChecked = 'orgchecked1';
+    	
+    if(isFlowForm) {
+    	if ($G('fieldflow').checked ) {
+    		gFlow = '1';
+        }
+    }
+    var fieldrequire = 0;
+    if ($G('fieldrequire').checked ) {
+    	fieldrequire = 1;
+	}
+	var isLog = 0;
+    if($G('is-log').checked) {
+        isLog = 1;
+    }
+
+    if(fromData=='dict') {
+	   dataValue = $("#data-value").next().val();
+	   if(utils.isEmpty(dataValue)) {
+	    	alert("请选择数据");
+	    	$("#data-value").focus();
+	    	return false;
+	    }
+	    fromDataUri = "dict/itemById/"+dataValue+".json";
+	 } else if(fromData=='cus_uri') {
+	    dataValue = $("#data-value").val();
+	    if(utils.isEmpty(fromDataUri)) {
+	    	alert("请输入数据来源");
+	    	$("#data-value").focus();
+	    	return false;
+	    }
+	   fromDataUri = dataValue;
+	 }
+	 if(utils.isNotEmpty(fromDataUri)) {
+	 	loadingSelectItem(fromDataUri);
+	 }
+    if(!oNode ) {
+        try {
+            var options = fnParseOptions("leipiNewField",gChecked);
+            if(!options) {
+	            alert('请添加选项');
+	            return false;
+            }
+            //{|- -|}使用边界，防止用户删除了span标签
+            var html = '{|-<span leipiplugins="radios" fieldname="'+gName+'" orgchecked="'+gChecked+
+            '" title="'+gTitle+'" orgtitle="'+gTitle+'" from_data="'+fromData+'" data_value="'+utils.handleNull(dataValue)+
+            '" data_uri="'+utils.handleNull(fromDataUri)+'" is_log="'+isLog+'" dynamicLoad="'+dynamicLoad+'" fieldrequire="'+fieldrequire+'" bind_table="'+bindTable+'" bind_table_field="'+bindTableField+'" name="leipiNewField" fieldflow="' + gFlow + '">';
+                html +=options;
+                html +='</span>-|}';
+            editor.execCommand('insertHtml',html);
+            return true;
+        } catch ( e ) {
+            try {
+                editor.execCommand('error');
+            } catch ( e ) {
+                alert('控件异常，请联系技术支持');
+            }
+            return false;
+        }
+    } else {
+    	oNode.setAttribute('name','leipiNewField');
+        oNode.setAttribute('orgtitle',gTitle);
+        oNode.setAttribute('orgchecked',gChecked);
+        if(isFlowForm) {
+        	oNode.setAttribute('fieldflow',gFlow);
+        }
+        oNode.setAttribute('fieldname',gName);
+        oNode.setAttribute('bind_table',bindTable );
+        oNode.setAttribute('bind_table_field',bindTableField);
+        oNode.setAttribute('orgtitle',gTitle );
+        //oNode.setAttribute('orgvalue',gValue );
+        oNode.setAttribute('from_data',fromData);
+        oNode.setAttribute('data_value',utils.handleNull(dataValue));
+	    oNode.setAttribute('data_uri',utils.handleNull(fromDataUri));
+        oNode.setAttribute('fieldrequire',fieldrequire);
+        oNode.setAttribute('dynamicload',dynamicLoad);
+        oNode.setAttribute('is_log',isLog);
+        oNode.innerHTML = fnParseOptions(gName,gChecked);
+        delete UE.plugins[thePlugins].editdom; 
+        return true;
+    }
+};
+
+function getBasePath() {
+	var href = self.location.href;
+	var basePath = '';
+	if(href != '') {
+		var basePath = href.replace(/(.*)\/plugins\/(.*)\/(.*)/, "$1/");
+	}
+	return basePath;
+}
+
+
+/**
+ * 初始化数据字典
+ */
+function initDictData(idTag) {
+	var uri = rootPath+'/op/queryTree/select_dict_tree.json';
+	$(idTag).zTreeUtil({
+		uri:uri,
+		isInput:true,
+		isSearch:false,
+		isInputTreeShow:false,
+		prompMsg:'请选择数据'
+	});
+	$(idTag).click(function(event){
+		if(!isTreeDestory) {
+			$(idTag).zTreeUtil({
+				uri:uri,
+				isInput:true,
+				isSearch:false,
+				isInputTreeShow:true
+			});
+			event.stopPropagation();
+		}
+	});
+}
+
+function destoryTree(idTag) {
+	$(idTag).zTreeUtil({
+		isInput:true,
+		destory:true
+	});
+}
+
+function loadingSelectItem(uri) {
+	if(null != uri && uri != '') {
+       	uri = getBasePath()+uri;
+    	if(uri != '') {
+    		$.ajax({
+    			url:uri,
+        		type:'GET',
+        		async:false,
+        		success:function(data) {
+        			if(data.result=='1'){
+        				var datas = data.datas;
+         			    var value = '';
+         			    var dName = $G('hidname').value;
+         			    if(!dName) dName = 'leipiNewField';
+         			    for ( var i = 0; i < datas.length; i++) {
+         			        value = datas[i][0]+"#"+datas[i][1];
+         			        fnDeleteRowByValue(value);
+         			    	fnAddComboTr(dName, {"checked":false,"name":'leipiNewField',"value":value});
+ 						}
+        			}
+        		}
+    		});
+    	}
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+/*************上传样式**********************/
+#upload-title {
+	text-align: center;
+	background-color: #428bca;
+	padding: 7px;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	color: #fff;
+}
+
+#upload-bottom {
+	position: absolute;
+	background: #d9edf7;
+	bottom: 0px;
+	width: 100%;
+	padding: 2px 5px;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
+.upload-msg-body {
+	overflow: auto;
+	padding: 5px 8px;
+}
+
+.upload-msg-body p {
+	font-weight: normal;
+	padding: 0;
+	margin: 0;
+}
+
+#upload-wait-msg {
+	display: none;
+}
+
+.attr-upload-prompt-msg {
+	font-size: 12px;
+}
+.attr-upload-prompt-msg p {
+	padding: 2px 0;
+	margin: 0;
+}
+#file-upload-form .help-block {
+	margin-bottom: 2px;
+	margin-top: 2px;
+}

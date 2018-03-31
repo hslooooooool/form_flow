@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap SYSTEM "./mapsql.dtd">
+<sqlMap>
+   <!-- 资源列表 -->
+    <sqlUnit name="res_mgr_list">
+       <sql>
+          select t.id,t.name,t.uri,
+          (select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=t.type and tmp.parent_id=(select id from t_n_dict where busi_value='RESOURCE_TYPE')) as type,
+          t.op_auths,
+          (select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=t.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state 
+           from t_n_resource t where 1=1 [ and t.name like '%:name%'] [ and t.state=:state ] [ and t.type=:type] order by t.create_time asc 
+       </sql>
+    </sqlUnit>
+
+    <!-- 获取用户信息 -->
+    <sqlUnit name="get_user_by_username">
+        <sql>
+            select * from t_n_user t where t.username=:username and t.state='1' 
+        </sql>
+    </sqlUnit>
+    
+    <!-- 获取用户信息 -->
+    <sqlUnit name="get_user_by_id">
+        <sql>
+            select * from t_n_user t where t.id=:id 
+        </sql>
+    </sqlUnit>
+    
+    <!-- 获取所有用户信息 -->
+    <sqlUnit name="get_user_all">
+        <sql>
+            select * from t_n_user
+        </sql>
+    </sqlUnit>
+    
+    <!-- 根据职位ID获取用户信息 -->
+    <sqlUnit name="get_user_by_positionid">
+        <sql>
+            select * from t_n_user t where t.position_id in(:positionIds)
+        </sql>
+    </sqlUnit>
+    
+    <!-- 用户登录 -->
+     <sqlUnit name="user_login_sql">
+        <sql>
+            select * from t_n_user t where t.username=:username and t.password=:password and t.state='1' 
+        </sql>
+    </sqlUnit>
+    
+    <!-- 获取用户信息 -->
+    <sqlUnit name="get_users_by_orgid">
+        <sql>
+            select * from t_n_user t where t.state='1' and t.org_id in (:orgIds)
+        </sql>
+    </sqlUnit>
+    
+    <!-- 判断用户是否存在 -->
+    <sqlUnit name="is_user_exist">
+    	<sql>
+    		select count(*) from t_n_user t where t.username=:username
+    	</sql>
+    </sqlUnit>
+    
+    <!-- 判断用户是否在部门下 -->
+    <sqlUnit name="is_user_in_org">
+        <sql>
+            select * from t_n_user t where t.id=:userId and t.org_id=:orgId
+        </sql>
+    </sqlUnit>
+    
+    <!-- 通过角色获取菜单 -->
+    <sqlUnit name="menu_by_role">
+       <sql>
+          from TNMenu t where t.id in (select distinct rm.menuId from TNRoleMenu rm where rm.roleId in(:roleIds)) order by t.sortOrder asc 
+       </sql>
+    </sqlUnit>
+    
+    <!-- 用户管理列表 -->
+    <sqlUnit name="user_mgr_list">
+       <sql>
+           select u.id,u.username,u.full_name,o.seq_names,u.mobile_no,u.qq,u.email,
+           (select t.name from t_n_position t where t.id=u.position_id) as position,
+           (select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=u.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state
+           ,u.create_time from t_n_user u,t_n_org o where u.org_id=o.id 
+           [and (u.username like '%:name%' or u.full_name like '%:name%') ] 
+           [and u.org_id in(:orgIds) ] [and u.org_id=:orgId] [and u.state=:state ] [and (u.mobile_no like ':info%' or u.email like ':info%') ] 
+           order by u.create_time asc
+       </sql>
+    </sqlUnit>
+    <!-- 批量修改密码 -->
+    <sqlUnit name="batch_change_pwd">
+       <sql>update t_n_user set password=:newPwd where id in(:userIds) </sql>
+    </sqlUnit>
+    
+    <!-- 修改密码 -->
+    <sqlUnit name="change_pwd">
+       <sql>update t_n_user set password=:newPwd where id=:userId </sql>
+    </sqlUnit>
+    
+    <!-- 删除用户信息 -->
+    <sqlUnit name="del_user">
+       <sql>
+           delete from t_n_user where id in (:userIds);
+           delete from t_n_role_user where user_id in(:userIds)
+       </sql>
+    </sqlUnit>
+    
+    <!-- 通过用户ID查询该用户所拥有的所有角色ID -->
+    <sqlUnit name="query_menuroleid_by_user">
+       <sql>
+         select distinct t.role_id from (
+          select ru.role_id from t_n_role_user ru where ru.user_id=:userId 
+          union 
+          select ro.role_id from t_n_role_org ro where ro.org_id=(select u.org_id from t_n_user u where u.id=:userId) and ro.flag='org'   
+          union 
+          select rp.role_id from t_n_role_position rp where rp.position_id=(select u.position_id from t_n_user u where u.id=:userId)) t 
+       </sql>
+    </sqlUnit>
+    
+    <!-- 通过用户ID查询该用户所拥有的所有角色ID -->
+    <sqlUnit name="query_roleid_by_user">
+       <sql>
+         select distinct t.role_id from (
+          select ru.role_id from t_n_role_user ru where ru.user_id=:userId 
+          union 
+          select rp.role_id from t_n_role_position rp where rp.position_id=(select u.position_id from t_n_user u where u.id=:userId) 
+          union 
+          select ro.role_id from t_n_role_org ro where ro.org_id=(select u.org_id from t_n_user u where u.id='140426549285920094') and ro.flag='org') t 
+       </sql>
+    </sqlUnit>
+    
+    <!-- 通过用户ID查询该用户所拥有的所有组织机构ID(数据权限) -->
+    <sqlUnit name="query_orgid_by_user">
+       <sql>
+         select distinct t.org_id from (select distinct ro.org_id from t_n_role_org ro where ro.role_id in (
+           select distinct t.role_id from (
+          select ru.role_id from t_n_role_user ru where ru.user_id=:userId 
+          union 
+          select rp.role_id from t_n_role_position rp where rp.position_id=(select u.position_id from t_n_user u where u.id=:userId)) t 
+         ) and ro.flag='role' 
+         union 
+         select u.org_id from t_n_user u where u.id=:userId 
+         ) t 
+       </sql>
+    </sqlUnit>
+    
+    <!-- 菜单列表 -->
+	<sqlUnit name="menu_mgr_list">
+        <sql>
+			 select t.id,t.parent_id,t.sort_order,
+		    t.id as menuId,t.name,
+		    (select res.name from t_n_resource res where res.id=t.resource_id) as resourceName,
+		    (select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=t.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state,
+		    t.sort_order as sortOrder,t.icon 
+		    from t_n_menu t order by t.sort_order asc 
+		 </sql>
+    </sqlUnit>
+    <sqlUnit name="valid_menu">
+        <sql>
+			from TNMenu t where t.state='1' order by t.sortOrder asc 
+		 </sql>
+    </sqlUnit>
+    
+    <!-- 删除资源 -->
+    <sqlUnit name="del_resource">
+        <sql>delete from t_n_role_resource where resource_id in(:resourceIds);
+             delete from t_n_resource where id in(:resourceIds);
+        </sql>
+    </sqlUnit>
+    
+    <sqlUnit name="query_menuid_by_resid">
+        <sql>
+           select t.id from t_n_menu t where t.resource_id in(:resourceIds)
+        </sql>
+    </sqlUnit>
+    
+    <!-- 删除菜单 -->
+    <sqlUnit name="del_menu">
+        <sql>
+             delete from t_n_role_menu where menu_id in(:menuIds);
+             delete from t_n_menu where id in(:menuIds);
+        </sql>
+    </sqlUnit>
+    
+    
+    <!-- 操作权限列表 -->
+	<sqlUnit name="opauth_mgr_list">
+        <sql>
+        select t.id,t.name,t.value,t.create_time from t_n_op_auth t order by create_time asc 
+		 </sql>
+    </sqlUnit>
+   <sqlUnit name="opauth_list_by_value">
+        <sql>
+			 select t.id,t.value,t.name from t_n_op_auth t where t.value in(:values) order by create_time asc 
+		 </sql>
+    </sqlUnit>
+    <sqlUnit name="opauths_by_value">
+        <sql>
+              from TNOPAuth a where a.value in(:values) order by a.sortOrder asc 
+		 </sql>
+    </sqlUnit>
+    <!-- 删除操作权限 -->
+    <sqlUnit name="del_op_auth">
+       <sql>delete from t_n_op_auth where id in(:ids)</sql>
+    </sqlUnit>
+    <!-- 数据字典列表 -->
+    <sqlUnit name="dict_mgr_list">
+       <sql>
+           select t.id,t.parent_id,t.sort_order,
+			t.id as dictId,t.busi_name,t.busi_value,
+			(select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=t.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state,
+			t.sort_order as sortOrder from t_n_dict t order by t.sort_order asc 
+       </sql>
+    </sqlUnit>
+    <sqlUnit name="dict_item">
+       <sql>
+         select d.busi_value,d.busi_name from t_n_dict d where d.parent_id=(select id from t_n_dict where busi_value=:busiValue) [and d.busi_name like '%:name%'] and d.state='1' order by d.sort_order asc
+       </sql>
+    </sqlUnit>
+    <!-- 获取数据字典 -->
+    <sqlUnit name="dict_item_by_id">
+       <sql>
+         select d.busi_value,d.busi_name from t_n_dict d where d.parent_id=:id [and d.busi_name like '%:name%'] and d.state='1' order by d.sort_order asc
+       </sql>
+    </sqlUnit>
+    <!-- 删除角色 -->
+    <sqlUnit name="del_role">
+       <sql>delete from t_n_role_menu where role_id in(:roleIds);
+            delete from t_n_role_resource where role_id in(:roleIds);
+            delete from t_n_role_position where role_id in(:roleIds);
+            delete from t_n_role_org where role_id in(:roleIds);
+            delete from t_n_role_user where role_id in(:roleIds);
+            delete from t_n_role where id in (:roleIds)
+       </sql>
+    </sqlUnit>
+    <!-- 删除和角色关联的数据 -->
+    <sqlUnit name="del_role_menu_by_role_id">
+       <sql>delete from t_n_role_menu where role_id=:roleId</sql>
+    </sqlUnit>
+    <!-- 删除和角色菜单关联的数据 -->
+    <sqlUnit name="del_role_menu_by_id">
+       <sql>delete from t_n_role_menu where role_id=:roleId and menu_id=:menuId </sql>
+    </sqlUnit>
+    <!-- 删除角色资源通过角色 -->
+    <sqlUnit name="del_roleres_by_role">
+       <sql>delete from t_n_role_resource where role_id=:roleId</sql>
+    </sqlUnit>
+
+    <!-- 删除组织机构信息 -->
+    <sqlUnit name="del_org">
+       <sql>delete from t_n_org where id in (:ids)</sql>
+    </sqlUnit>
+    
+    <!-- 获取组织机构信息根据组织机构ID -->
+    <sqlUnit name="get_org_by_id">
+    	<sql>
+    		select * from t_n_org t where t.id=:id
+    	</sql>
+    </sqlUnit>
+    <!-- 获取所有组织机构信息 -->
+    <sqlUnit name="get_org_all">
+    	<sql>
+    		select * from t_n_org
+    	</sql>
+    </sqlUnit>
+    <!-- 获取职位信息通过组织机构ID -->
+    <sqlUnit name="get_position_by_orgid">
+    	<sql>
+    		select * from t_n_position t where t.org_id in(:orgIds)
+    	</sql>
+    </sqlUnit>
+    <!-- 判断职位是否在组织机构下 -->
+    <sqlUnit name="is_position_in_org">
+    	<sql>
+    		select * from t_n_position t where t.id=:id and t.org_id=:orgId
+    	</sql>
+    </sqlUnit>
+    <!-- 获取职位信息根据职位ID -->
+    <sqlUnit name="get_position_by_id">
+    	<sql>
+    		select * from t_n_position t where t.id=:id
+    	</sql>
+    </sqlUnit>
+    <!-- 获取所有职位信息 -->
+    <sqlUnit name="get_position_all">
+    	<sql>
+    		select * from t_n_position
+    	</sql>
+    </sqlUnit>
+    
+    
+    <!-- 获取组织机构排序序号-->
+    <sqlUnit name="org_sort_order">
+       <sql>select max(t.sort_order) from t_n_org t where t.parent_id=:parentId and t.type =:type </sql>
+    </sqlUnit>
+
+    <!-- 个人设置 -->
+    <sqlUnit name="user_setting_list">
+       <sql>select t.id,t.name,t.uri,
+       (select tmp.busi_name from t_n_dict tmp where tmp.busi_value=t.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE' )) as state ,t.sort_order from t_n_user_set_menu t order by t.sort_order asc 
+       </sql>
+    </sqlUnit>
+    <!-- 个人设置 -->
+    <sqlUnit name="user_setting_valid_menu">
+       <sql> from TNUserSetMenu where state='1' order by sortOrder asc</sql>
+    </sqlUnit>
+    <sqlUnit name="user_index_layout">
+       <sql> from TNCustomIndex where userId=:userId</sql>
+    </sqlUnit>
+    <sqlUnit name="min_win_item">
+       <sql> select t.id,t.name from t_n_min_window t where t.state='1' [ and t.name like '%:name%'] order by t.sort_order asc</sql>
+    </sqlUnit>
+    <sqlUnit name="cus_index_minwin">
+       <sql>from TNCusIndexMinWin t where t.cusIndexId =:cusIndexId order by t.sortOrder asc</sql>
+    </sqlUnit>
+    <!-- 删除自定义首页 -->
+    <sqlUnit name="del_cus_index">
+       <sql>
+           delete from t_n_custom_index where id =:cusIndexId;
+           delete from t_n_cus_index_min_win where cus_index_id =:cusIndexId
+       </sql>
+    </sqlUnit>
+    
+    <!-- 删除角色中的用户 -->
+    <sqlUnit name="del_role_user">
+       <sql>delete from t_n_role_user where role_id=:roleId and user_id in(:id)</sql>
+    </sqlUnit>
+    <!-- 检测用户是否已经添加到角色里面 -->
+    <sqlUnit name="check_user_in_role_exits">
+        <sql>select count(*) from t_n_role_user t where t.role_id=:roleId and t.user_id in(:userIds) </sql>
+    </sqlUnit>
+    <!-- 删除角色中的组织机构-->
+    <sqlUnit name="del_role_org">
+       <sql>delete from t_n_role_org where role_id=:roleId and org_id in(:id) and flag='role'</sql>
+    </sqlUnit>
+    <!-- 检测组织机构是否已经添加到角色里面 -->
+    <sqlUnit name="check_org_in_role_exits">
+        <sql>select count(*) from t_n_role_org t where t.role_id=:roleId and t.org_id in(:orgIds) and t.flag='role' </sql>
+    </sqlUnit>
+    <!-- 删除角色中的岗位-->
+    <sqlUnit name="del_role_position">
+       <sql>delete from t_n_role_position where role_id=:roleId and position_id in(:id)</sql>
+    </sqlUnit>
+    <!-- 删除岗位中的角色-->
+    <sqlUnit name="del_position_role">
+       <sql>delete from t_n_role_position where position_id=:positionId and role_id in(:id)</sql>
+    </sqlUnit>
+    <!-- 检测岗位是否已经添加到角色里面 -->
+    <sqlUnit name="check_position_in_role_exits">
+        <sql>select count(*) from t_n_role_position t where t.role_id=:roleId and t.position_id in(:positionIds) </sql>
+    </sqlUnit>
+    
+    <!-- 检测角色是否已经添加到用户里面 -->
+    <sqlUnit name="check_role_in_user_exits">
+        <sql>select count(*) from t_n_role_user t where t.user_id=:userId and t.role_id in(:roleIds) </sql>
+    </sqlUnit>   
+    <!-- 删除用户中的角色 -->
+    <sqlUnit name="del_user_role">
+       <sql>delete from t_n_role_user where user_id=:userId and role_id in(:id)</sql>
+    </sqlUnit>
+    
+    <!-- 删除组织机构中的角色-->
+    <sqlUnit name="del_org_role">
+       <sql>delete from t_n_role_org where org_id=:orgId and role_id in(:id) and flag='org'</sql>
+    </sqlUnit>
+    <!-- 检测角色是否已经添加到组织机构里面 -->
+    <sqlUnit name="check_role_in_org_exits">
+        <sql>select count(*) from t_n_role_org t where t.org_id=:orgId and t.role_id in(:roleIds) and t.flag='org' </sql>
+    </sqlUnit>
+    
+    
+    <!-- 检测角色是否已经添加到岗位里面 -->
+    <sqlUnit name="check_role_in_position_exits">
+        <sql>select count(*) from t_n_role_position t where t.position_id=:positionId and t.role_id in(:roleIds) </sql>
+    </sqlUnit>
+    <!-- 检测角色与该菜单关联是否已存在 -->
+    <sqlUnit name="check_role_menu_combin_exist">
+       <sql>select count(*) from t_n_role_menu t where t.role_id=:roleId and t.menu_id=:menuId </sql>
+    </sqlUnit>
+    
+    <include file="/sql/override_base_sql_res.xml" />
+</sqlMap>

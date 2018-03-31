@@ -1,0 +1,66 @@
+@CHARSET "UTF-8";
+
+#assignee-dialog-wrap .tab-pane {height: 420px;overflow: auto;}
+#assignee-dialog-wrap .btn-item {margin-top: 200px;text-align: center;}
+#assignee-dialog-wrap .btn-item p {padding-top: 10px;}
+#assignee-dialog-wrap .btn {font-weight: bold;}
+#assignee-selected-data {height: 438px;overflow: auto;padding:5px;}
+#assignee-selected-data .has-selected-data {padding: 5px 0;border-bottom: 1px solid #eeeeee;}
+.checkbox-align input[type=radio], .checkbox-align input[type=checkbox]{vertical-align:middle;margin-top:0;margin-bottom:2px; *margin-bottom:2px;}
+
+/**********表单流程*********/
+.flow-process-header {border-top: 1px solid #aed0ea;border-bottom: 1px solid #aed0ea;}
+/*.flow-process-info {min-height: 25px;color: #3b46d6;font-weight: normal;padding:2px 5px;  border-bottom: 1px solid #dedede;}*/
+.flow-process-btn {background-color: #deedf7;min-height: 30px;padding: 1px 5px 1px 5px;}
+
+.flow-form-contents .panel-tabs-tab .nav-tabs {
+  padding-left: 0px;
+}
+.flow-form-contents .nav>li>a {
+  padding: 5px 15px;
+  color: #2779aa;
+}
+
+#flow-form-panel-contents,#edit-flow-form-panel-contents.#view-flow-form-panel-contents {
+	overflow: auto;
+	padding-top: 5px;
+}
+.listctrl-title {padding-top: 5px;}
+ 
+/****************模拟树形****************/
+.tr-parent-tree-td {
+	cursor: pointer;
+}
+.table-condensed>tbody>tr>td.tr-parent-tree-td {
+	padding: 5px 5px;
+	background-color: #f9f9f9;
+}
+.table-condensed>tbody>tr>td.tr-sub-tree-td {
+	padding-left: 45px;
+}
+.modal-row {padding-bottom: 10px;}
+.process-task-info {font-size: 12px;color:#2779aa;}
+.task-info-col {border-right: 1px solid #cfcfcf;}
+.process-task-info>div.left{padding-top: 6px;padding-bottom: 7px;}
+
+/*********流程执行过程中选择下一环节参与者样式***************/
+#select-assigner-content {padding-top:8px;}
+.select-user-tree-wrap {
+	width: 230px;
+	height: 220px;
+	overflow: auto;
+	border: 1px solid #aed0ea;
+	border-top-left-radius:3px;
+    border-top-right-radius:3px;
+    margin-right: 10px;
+}
+.next-title {
+	padding: 5px 8px;
+}
+.next-title.ui-state-default {
+	border-top: none;
+	border-left: none;
+	border-right: none;
+}
+.select-user-tree-wrap.border-color-red {border-color: red;}
+.task-submit-form {display: none;}

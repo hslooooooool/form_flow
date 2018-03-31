@@ -1,0 +1,6 @@
+  <!ELEMENT sqlMap (sqlUnit|include)*>
+  <!ELEMENT sqlUnit (sql)>
+  <!ELEMENT include EMPTY>
+  <!ATTLIST sqlUnit name ID #IMPLIED>
+  <!ATTLIST include file CDATA #REQUIRED >
+  <!ELEMENT sql    (#PCDATA)>

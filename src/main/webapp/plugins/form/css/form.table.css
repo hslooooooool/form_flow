@@ -1,0 +1,4 @@
+@CHARSET "UTF-8";
+.create-table-field {max-height: 350px;height: 250px;}
+.create-table-field .form-control.input-sm {  height: 28px;width: 94%;}
+.table-condensed>tbody>tr>td.seq-num {background-color: #EEEEEE;}

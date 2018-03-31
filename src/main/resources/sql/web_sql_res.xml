@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap SYSTEM "./mapsql.dtd">
+<sqlMap>
+	<sqlUnit name="test2_mgr_list_24197">
+		<sql>select t.id,t.name,t.age from t_test t</sql>
+	</sqlUnit>
+	
+	<sqlUnit name="input_select_page_test">
+		<sql>select t.id,t.name from t_n_menu t [ where t.name like ':name%']</sql>
+	</sqlUnit>
+	
+	<!-- 子系统信息列表 -->
+	<sqlUnit name="sub_system_list">
+		<sql>select t.id,t.name,t.url,t.icon,
+		(select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=t.sys_type and tmp.parent_id=(select id from t_n_dict where busi_value='SYS_TYPE')) as systype,
+		(select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=t.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state,
+		t.sort_order,t.create_time from t_n_sub_system t order by t.sort_order asc</sql>
+	</sqlUnit>
+	
+	<!-- 获取子系统信息 -->
+	<sqlUnit name="get_sub_system"> 
+		<sql>
+			select * from t_n_sub_system t where t.state='1' order by t.sort_order asc
+		</sql>
+	</sqlUnit>
+	<!-- 获取操作ID通过URI -->
+	<sqlUnit name="get_op_auths_byuri">
+	   <sql>
+	       select rr.op_auths from t_n_resource t,t_n_role_resource rr where t.id=rr.resource_id and t.uri=:uri and rr.role_id in(:roleIds)
+	   </sql>
+	</sqlUnit>
+	
+	<!-- 获取SQL资源管理列表 -->
+	<sqlUnit name="get_sql_resource_mgr_list">
+	   <sql>
+	       select t.id, t.res_name,t.descr,
+	       (case when t.is_filter then '是' else '否' end) as isFilter,
+	       u.full_name,t.create_time,
+	       t.last_modify_time, (select full_name from t_n_user u where u.id = t.last_user_id) as lastUser 
+	        from t_n_sql_resource t, t_n_user u where t.user_id=u.id [ and t.res_name like '%:name%' ] 
+	        order by t.create_time desc
+	   </sql>
+	</sqlUnit>
+	<!-- SQL资源与用户表关联查询 -->
+	<sqlUnit name="query_assoc_user_sql_resource">
+	   <sql>
+	       select t.id,t.create_time,t.descr,t.is_filter,t.res_name,t.sql_,u.full_name as user_id,t.last_modify_time,uf.full_name as last_user_id 
+           from t_n_user u, t_n_sql_resource t left join t_n_user uf on uf.id=t.last_user_id where t.user_id=u.id and t.id=:id
+	   </sql>
+	</sqlUnit>
+</sqlMap>

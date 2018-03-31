@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap SYSTEM "./mapsql.dtd">
+<sqlMap>
+	
+	 <!-- 用户管理列表 -->
+    <sqlUnit name="user_mgr_list_test">
+       <sql>
+           select u.id,u.username,u.full_name,o.seq_names,u.mobile_no,u.qq,u.email,
+           (select t.name from t_n_position t where t.id=u.position_id) as position,
+           (select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=u.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state
+           ,u.create_time from t_n_user u,t_n_org o where u.org_id=o.id 
+           [and (u.username like '%:name%' or u.full_name like '%:name%') ] 
+           [ and u.org_id in(:orgIds) ]
+           [and u.org_id in (select t.id from t_n_org t where t.seq_parent_ids like '%.:orgId.%' or t.id=:orgId) ] [and u.state=:state ] [and (u.mobile_no like ':info%' or u.email like ':info%') ] 
+           order by u.create_time asc
+       </sql>
+    </sqlUnit>
+	
+	<!-- 用户管理列表[测试] -->
+    <sqlUnit name="user_mgr_list_test">
+       <sql>
+           select u.id,u.username,u.full_name,o.seq_names,
+           (select t.name from t_n_position t where t.id=u.position_id) as position,
+           (select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=u.state and tmp.parent_id=(select id from t_n_dict where busi_value='DATA_STATE')) as state
+           ,u.create_time,o.id as orgId from t_n_user u,t_n_org o where u.org_id=o.id 
+           [and (u.username like '%:name%' or u.full_name like '%:name%') ] 
+            [and u.state=:state ] 
+           order by u.create_time asc
+       </sql>
+    </sqlUnit>
+    
+    <sqlUnit name="test_org_async_tree">
+        <sql>
+            select t.id,t.parent_id,t.sort_order,t.id as orgId,t.name,t.code,
+           (select tmp.busi_name from t_n_dict tmp where 
+		    tmp.busi_value=t.type and tmp.parent_id=(select id from t_n_dict where busi_value='ORG_TYPE')) as type,
+            t.sort_order as sortOrder,t.contacts,t.contact_number,
+            (select count(o.id) from t_n_org o where o.parent_id=t.id) as isChild 
+            from t_n_org t where [t.parent_id=:parentId] order by t.sort_order asc 
+        </sql>
+    </sqlUnit>
+    
+    <!-- 菜单 (测试)-->
+    <sqlUnit name="menu_auto_complete_test">
+        <sql>
+           select t.id,t.name,t.name as labelName,t.parent_id,t.state,t.resource_id,t.sort_order from t_n_menu t [ where t.name like '%:term%'] order by t.sort_order asc 
+        </sql>
+    </sqlUnit>
+    
+    <!-- 组织机构树（未过滤） -->
+    <sqlUnit name="menu_auto_complete_test2">
+        <sql>
+           select t.id,t.name from t_n_menu t [ where t.name like '%:term%'] order by t.sort_order asc 
+        </sql>
+    </sqlUnit>
+</sqlMap>

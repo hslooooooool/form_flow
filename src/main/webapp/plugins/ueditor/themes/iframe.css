@@ -1,0 +1,7 @@
+/*可以在这里添加你自己的css*/
+.tab-content {
+	padding: 5px;
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+}

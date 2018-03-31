@@ -1,0 +1,336 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>文本框</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    <!--[if lte IE 6]>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-ie6.css">
+    <![endif]-->
+    <!--[if lte IE 7]>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/ie.css">
+    <![endif]-->
+    <link rel="stylesheet" href="leipi.style.css">
+    <script type="text/javascript" src="../dialogs/internal.js"></script>
+    <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+    <link rel="stylesheet" href="css/form.design.css">
+    <script type="text/javascript" src="../../../js/utils.js"></script>
+    <script type="text/javascript">
+	    var isFlowForm = false;
+	    var formType = $("#form_type",parent.document).val();
+	    var rootPath = $("#root-path",parent.document).val();
+	    if(typeof(formType) !== 'undefined' && formType == 'flow_form') {
+	    	isFlowForm = true;
+	    }
+    </script>
+</head>
+<body>
+<div class="content">
+    <table class="table table-bordered">
+       <tr>
+        <th><span>标题</span><span class="label label-important">*</span></th>
+        <td><input type="text" class="require" id="orgtitle" /></td>
+        <th><span>增强</span></th>
+        <td><label class="checkbox inline"><input id="orgrich" type="checkbox" />富文本形式 </label></td>
+        </tr>
+        <tr>
+        <script type="text/javascript">
+          if(isFlowForm) {
+        	  document.write('<th><span>必填字段</span></th><td><label class="checkbox inline"><input id="fieldrequire" type="checkbox"/>是</label></td>');
+        	  document.write('<th><span>流程变量</span></th><td><label class="checkbox inline"><input id="fieldflow" type="checkbox"/>是</label></td>');
+          } else {
+        	  document.write('<th><span>必填字段</span></th><td colspan="3"><label class="checkbox inline"><input id="fieldrequire" type="checkbox"/>是</label></td>');
+          }
+       </script>
+      </tr>
+      <tr>
+        <th><span>绑定表</span><span class="label label-important">*</span></th>
+        <td>
+           <select id="bind_table" class="require">
+           	   <option class="" value="">无</option>
+              <option class="cnoj-dyn-opt" value="">正在加载数据</option>
+           </select>
+        </td>
+        <th><span>绑定字段</span><span class="label label-important">*</span></th>
+        <td>
+           <select id="bind_table_field" class="require">
+               <option class="" value="">无</option>
+               <option class="cnoj-dyn-opt" value="">正在加载数据</option>
+           </select>
+        </td>
+    </tr>
+    <tr>
+        <th><span>文本域宽</span></th>
+        <td><input id="orgwidth" type="text" value="300" placeholder="auto"/></td>
+        <th><span>文本域高</span></th>
+        <td><input id="orgheight" type="text" value="80"  placeholder="auto"/></td>
+    </tr>
+    <tr>
+      <th>关联字段</th>
+      <td>
+      	<select id="relate_field">
+      		<option value="">请选择</option>
+      	</select>
+      </td>
+      <th>关联值</th>
+      <td><input id="relate_field_value" type="text"/></td>
+    </tr>
+    <tr>
+      <th><span>可见性</span></th>
+       <td>
+         <label class="checkbox inline"><input id="orghide" type="checkbox"/> 隐藏 </label>
+       </td>
+        <th><span>记录日志</span></th>
+        <td>
+            <label class="checkbox inline"><input id="is-log" type="checkbox"/> 是 </label>
+        </td>
+    </tr>
+    <tr>
+        <th><span>默认值</span></th>
+        <td colspan="3">
+            <textarea class="input-block-level" rows="6" id="orgvalue" placeholder="默认值..."></textarea>
+        </td>
+    </tr>
+    </table>
+</div>
+<script type="text/javascript">
+var oNode = null,thePlugins = 'textarea';
+var tableDefValue = null,fieldDefValue = null;
+window.onload = function() {
+	var tableFieldId = null;
+    if( UE.plugins[thePlugins].editdom ){
+        oNode = UE.plugins[thePlugins].editdom;
+        var gValue = oNode.getAttribute('value').replace(/&quot;/g,"\""),
+        gTitle=oNode.getAttribute('title').replace(/&quot;/g,"\""),
+        gRequrie = oNode.getAttribute('fieldrequire'),
+        gHidden=oNode.getAttribute('orghide'),
+        gWidth=oNode.getAttribute('orgwidth'),gHeight=oNode.getAttribute('orgheight'),
+        gRich=oNode.getAttribute('orgrich'),
+        gRelateField = oNode.getAttribute('relate_field'),
+		gRelateFieldValue = oNode.getAttribute('relate_field_value'),
+        gBindTable = oNode.getAttribute('bind_table'),gBindField=oNode.getAttribute('bind_table_field');
+        var gIsLog = oNode.getAttribute('is_log');
+        gValue = gValue==null ? '' : gValue;
+        gTitle = gTitle==null ? '' : gTitle;
+        
+        tableDefValue = gBindTable==null?'':gBindTable;
+        fieldDefValue = gBindField==null?'':gBindField;
+        tableFieldId = fieldDefValue;
+        if(utils.isNotEmpty(gValue)) {
+    		gValue = gValue.replace("<br/>", "\n");
+   		}
+        $G('orgvalue').value = gValue;
+        $G('orgtitle').value = gTitle;
+        $G('relate_field_value').value = utils.handleNull(gRelateFieldValue);
+        if(isFlowForm) {
+        	var gFlow=oNode.getAttribute('fieldflow');
+            if (gFlow == '1') {
+                $G('fieldflow').checked = true;
+            }
+        }
+        if (gRequrie == '1') {
+            $G('fieldrequire').checked = true;
+        }
+        if ( gRich == '1' ) {
+            $G('orgrich').checked = true ;
+        }
+        if (gHidden == '1') {
+            $G('orghide').checked = true;
+        }
+        if(gIsLog == '1') {
+            $G('is-log').checked = true;
+        }
+        $G('orgwidth').value = gWidth;
+        $G('orgheight').value = gHeight;
+    }
+    utils.selectItem("#bind_table",rootPath+'/form/table/item.json',tableDefValue,function(val){
+    	utils.selectCascadeItem("#bind_table_field", "#bind_table", rootPath+'/form/table/fields.json', "id", fieldDefValue, null);
+	});
+	//获取编辑器中的内容
+	var ueditorContent = parent.getUeditorContents();
+	if(utils.isNotEmpty(ueditorContent)) {
+		var $uc = $(ueditorContent);
+		$("#relate_field .relate_field_option").remove();
+		$uc.find("select[leipiplugins=select]").each(function(){
+			var $this = $(this);
+			var pTableFieldId = $this.attr("bind_table_field");
+			var title = $this.attr("orgtitle");
+			if(utils.isEmpty(tableFieldId) || tableFieldId != pTableFieldId) {
+				$("#relate_field").append("<option class='relate_field_option' value='"+pTableFieldId+"'>"+title+"</option>");
+			}
+		});
+	}
+	$G('relate_field').value = utils.handleNull(gRelateField);
+}
+dialog.oncancel = function () {
+    if( UE.plugins[thePlugins].editdom ) {
+        delete UE.plugins[thePlugins].editdom;
+    }
+};
+dialog.onok = function (){
+	var isCheck = true;
+	var msg = null;
+	$(".require").each(function(){
+		if(utils.isEmpty($(this).val())) {
+			var title = $(this).parent().prev().find("span:first").text();
+			msg = title+"不能为空！";
+			isCheck = false;
+			$(this).focus();
+			return false;
+		}
+	});
+	if(!isCheck) {
+		alert(msg);
+		return false;
+	}
+    var gValue=$G('orgvalue').value.replace(/\"/g,"&quot;"),gTitle=$G('orgtitle').value.replace(/\"/g,"&quot;"),
+    gWidth=$G('orgwidth').value,gHeight=$G('orgheight').value;
+    var relateField = $G('relate_field').value;
+    var gRelateFieldValue = $G('relate_field_value').value;
+    if(utils.isNotEmpty(gValue)) {
+    	gValue = gValue.replace(/\r\n|\n|\r/g, "<br/>");
+    }
+    var bindTable = $G('bind_table').value;
+    var bindTableField = $G('bind_table_field').value;
+
+    if( !oNode ) {
+        try {
+            var html = '<textarea class="form-control';
+            
+             if ($G('fieldrequire').checked) {
+			       html += ' require "';
+			       html += ' fieldrequire = 1';
+			 } else {
+			 	html += '" fieldrequire = 0';
+			 }
+            
+            html += ' title = "' + gTitle + '"';
+            html += ' name = "leipiNewField"';
+            html += ' leipiplugins = "'+thePlugins+'"';
+            html += ' value = "' + gValue + '"';
+            
+            if(isFlowForm) {
+            	if ($G('fieldflow').checked ) {
+            		 html += ' fieldflow = "1"';
+                } else {
+                	html += ' fieldflow = "0"';
+                }
+            }
+            if ( $G('orgrich').checked ) {
+                html += ' orgrich = "1"';
+            } else {
+                html += ' orgrich = "0"';
+            }
+            if( gWidth != '' ) {
+                html += ' orgwidth = "' + gWidth + '"';
+            } else {
+                html += ' orgwidth = ""';
+            }
+            if(gHeight != '') {
+                html += ' orgheight = "' + gHeight + '"';
+            } else {
+                html += ' orgheight = ""';
+            }
+             if ($G('orghide').checked ) {
+            	html += ' orghide = 1';
+		    } else {
+		    	html += ' orghide = 0';
+		    }
+            if($G('is-log').checked) {
+                html += 'is_log = 1';
+            } else {
+                html += 'is_log = 0';
+            }
+            html += ' relate_field="'+relateField+'" relate_field_value="'+gRelateFieldValue+'"';
+            html += ' bind_table="'+bindTable+'" bind_table_field="'+bindTableField+'"';
+            
+            html += ' style = "';
+            if( gWidth != '' ) {
+                html += 'width:' + gWidth + 'px;';
+            }
+            if( gHeight != '' ) {
+                html += 'height:' + gHeight + 'px;';
+            }
+            html += '">';
+            html += gValue + '</textarea>';
+            editor.execCommand('insertHtml',html);
+       } catch (e) {
+            try {
+                editor.execCommand('error');
+            } catch ( e ) {
+                alert('控件异常，请联系技术支持');
+            }
+            return false;
+        }
+    } else {
+        oNode.setAttribute('title', gTitle);
+        oNode.setAttribute('value',gValue);
+        oNode.setAttribute('name','leipiNewField');
+        oNode.innerHTML = gValue;
+        oNode.className="form-control";
+        if( $G('orgrich').checked ) {
+            oNode.setAttribute('orgrich', 1);
+        } else {
+            oNode.setAttribute('orgrich', 0);
+        }
+        if ($G('orghide').checked ) {
+	        oNode.setAttribute('orghide',1);
+	    } else {
+	        oNode.setAttribute('orghide',0);
+	    }
+        if($G('is-log').checked) {
+            oNode.setAttribute('is_log',1);
+        } else {
+            oNode.setAttribute('is_log',0);
+        }
+        if(isFlowForm) {
+	        if ( $G('fieldflow').checked ) {
+	            oNode.setAttribute('fieldflow',1);
+	        } else {
+	            oNode.setAttribute('fieldflow',0);
+	        }
+        }
+        
+        if ($G('fieldrequire').checked) {
+	        oNode.setAttribute('fieldrequire',1);
+	        var className = oNode.className;
+	        if(typeof(className) === 'undefined' || null == className) {
+	        	className = '';
+	        }
+	        oNode.className=className+" require";
+	    } else {
+	        oNode.setAttribute('fieldrequire',0);
+	        var className = oNode.className;
+	        if(typeof(className) === 'undefined' || null == className) {
+	        	className = '';
+	        } else {
+	        	className = className.replace(" require", "");
+	        }
+	        oNode.className=className;
+	    }
+        
+        if( gWidth != '' ) {
+            oNode.style.width = gWidth+ 'px';
+            oNode.setAttribute('orgwidth',gWidth );
+        }else{
+        	oNode.style.width = null;
+            oNode.setAttribute('orgwidth', '');
+        }
+        if( gHeight != '' ) {
+            oNode.style.height = gHeight+ 'px';
+            oNode.setAttribute('orgheight',gHeight );
+        }else{
+        	oNode.style.height = null;
+            oNode.setAttribute('orgheight', '');
+        }
+        oNode.setAttribute('bind_table',bindTable);
+        oNode.setAttribute('bind_table_field',bindTableField);
+        oNode.setAttribute('relate_field',utils.handleNull(relateField));
+        oNode.setAttribute('relate_field_value',utils.handleNull(gRelateFieldValue));
+        delete UE.plugins[thePlugins].editdom;
+    }
+};
+</script>
+</body>
+</html>

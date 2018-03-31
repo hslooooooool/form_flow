@@ -1,0 +1,94 @@
+@CHARSET "UTF-8";
+
+.table>thead>tr.cnoj-ui-thead>th {border-bottom: none;color:#2064b5;font-weight:700;}
+.table-wrap>.table-condensed>thead>tr>th,.table-wrap>.table-condensed>tbody>tr>th, .table-condensed > tfoot > tr > th, 
+.table-wrap>.table-condensed > thead > tr > td,.table-wrap>.table-condensed > tbody > tr > td, .table-wrap>.table-condensed > tfoot > tr > td {
+	padding: 4px;
+	font-size: 12px;
+}
+
+.table-condensed>thead>tr>th.text-left, .table-condensed>tbody>tr>th.text-left, .table-condensed>tfoot>tr>th.text-left {
+	padding-left: 10px;
+	/*font-weight: normal;*/
+}
+.table-condensed>thead>tr>th.text-center, .table-condensed>tbody>tr>th.text-center, .table-condensed>tfoot>tr>th.text-center {
+	padding-left: 10px;
+	/*font-weight: normal;*/
+}
+/*
+.table-condensed>thead>tr>th,.table-condensed>thead>tr>th.th-checkbox.text-center, .table-condensed>tbody>tr>th, .table-condensed>tfoot>tr>th, .table-condensed>thead>tr>td, .table-condensed>tbody>tr>td, .table-condensed>tfoot>tr>td {
+	padding: 3px;
+}*/
+
+.table-condensed>tbody>tr>td input.form-control,
+.table-condensed>tbody>tr>td select.form-control {
+	padding: 4px 6px;
+	height: 30px;
+}
+
+/*.table-condensed>tbody>tr>th {color:#2779aa;}*/
+.modal-header {padding: 8px 15px;}
+.pagination {margin: 10px 0;}
+.panel-footer.panel-footer-page {padding: 1px 5px 2px 2px;}
+.panel-footer-page .pagination {margin: 0;}
+.panel {margin-bottom: 0;}
+.panel-heading {padding: 6px 15px;}
+.panel-heading.ui-widget-header,.panel-heading.ui-state-default,.panel-heading.ui-state-active {border: none;}
+.table .ui-widget-header {border: none;border-top: 1px solid #aed0ea;}
+.table .ui-state-default {border: none;border-top: 1px solid #aed0ea;}
+.panel-footer.ui-state-default {border: none;font-weight:normal;border-top: 1px solid #aed0ea;}
+.popover {max-width: 100%;}
+input[type=file] { display: inline-block;}
+.form-control {width: 95%;padding: 6px 6px;display: inline-block;}
+.form-control.input-sm {padding: 3px 3px;}
+.form-horizontal .has-feedback .form-control-feedback {right: 38px;}
+.panel-footer {padding: 5px 15px;}
+.panel-body {padding: 3px 0px;}
+.panel-title {font-size: 14px;}
+a:hover,a:focus {text-decoration: none;}
+.nav>li>a {padding: 5px 15px;}
+label {display: inline;}
+
+legend { width:auto; border-bottom:none; margin-bottom: 0;}
+.fw-normal {font-weight: normal;}
+.th-checkbox .checkbox,.td-checkbox .checkbox {margin-top: 0;margin-bottom: 0;}
+.table-theader .table-bordered {border: none;}
+.table-theader .table>thead>tr>th {border-bottom:none;}
+.table-theader-bg.ui-state-default {border: none;border-top: 1px solid #ddd;border-bottom: 1px solid #ddd;}
+.table-theader-bg .table-theader .table .ui-state-default {border: none;}
+
+/*******兼容IE浏览器*******/
+/*table {font-weight: normal;word-break:break-all; word-wrap:break-all;}*/
+.form-control {font-weight: normal;}
+
+.glyphicon-t-2 {top: 2px;}
+.btn-sm, .btn-group-sm>.btn {padding: 4px 10px;}
+.panel-heading.ui-widget-header.panel-heading-border {border-bottom: 1px solid #aed0ea;}
+.panel-info>.panel-heading, .panel-default>.panel-heading, .ui-widget-header {color: #2064b5;}
+.fieldset-nomal fieldset {padding:3px 0 10px 10px;border: 1px solid #aaa;border-radius:4px;}
+.fieldset-nomal legend {font-weight: 700;font-size: 12px;}
+
+input[type=radio], input[type=checkbox] {margin: 3px 0 0;}
+.radio input[type=radio], .radio-inline input[type=radio], .checkbox input[type=checkbox], .checkbox-inline input[type=checkbox] {
+	margin-left: -15px;
+}
+.form-group {margin-bottom: 10px;}
+
+#process-att-tab-a .badge {
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+.popover-title {padding: 6px 10px;}
+.popover-content {padding: 5px 10px;}
+
+/***重新Bootstrap列表样式***/
+.mix-bootstrap-col .col-sm-1, .mix-bootstrap-col .col-sm-2, 
+.mix-bootstrap-col .col-sm-3, .mix-bootstrap-col .col-sm-4, 
+.mix-bootstrap-col .col-sm-5, .mix-bootstrap-col .col-sm-6, 
+.mix-bootstrap-col .col-sm-7, .mix-bootstrap-col .col-sm-8, 
+.mix-bootstrap-col .col-sm-9,.mix-bootstrap-col .col-sm-10, 
+.mix-bootstrap-col .col-sm-11, .mix-bootstrap-col .col-sm-12 {
+	padding-right: 5px;
+    padding-left: 0px;
+}
